@@ -35,7 +35,7 @@
 
 # Optionally include nbdebug functions.
 try:
-    from nbdebug import d, breakpoint, set_indent_function, IN_DEBUG_MODE
+    from nbdebug import IN_DEBUG_MODE, breakpoint, d, set_indent_function
 except:
     d = lambda x: None
     set_indent_function = None

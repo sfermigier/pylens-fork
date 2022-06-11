@@ -34,6 +34,7 @@
 #
 from .debug import *
 
+
 # Thrown when tentative object state should be rolled back.
 class RollbackException(Exception):
     pass
@@ -53,6 +54,7 @@ class LensException(RollbackException):
     def get_thrown_from(self):
 
         import inspect
+
         from nbdebug import getCallerLocation
 
         # TODO: Could tidy this up and perhaps integrate with nbdebug.

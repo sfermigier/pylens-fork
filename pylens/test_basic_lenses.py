@@ -1,10 +1,10 @@
-from pylens.base_lenses import Literal, Group, AnyOf, Empty, Repeat, And
+from pylens.base_lenses import And, AnyOf, Empty, Group, Literal, Repeat
 from pylens.charsets import alphas, nums
-from pylens.debug import assert_raises, describe_test, assert_equal, auto_name_lenses
+from pylens.debug import assert_equal, assert_raises, auto_name_lenses, describe_test
 from pylens.exceptions import (
     LensException,
-    TooFewIterationsException,
     NoDefaultException,
+    TooFewIterationsException,
 )
 from pylens.readers import ConcreteInputReader
 from pylens.settings import GlobalSettings

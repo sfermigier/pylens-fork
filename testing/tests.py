@@ -35,23 +35,23 @@
 #  Note that these lenses may not be completely accurate but are an aid to testing.
 #
 from pylens import get, put
-from pylens.base_lenses import Repeat, AnyOf, Group
-from pylens.charsets import nums, alphas
-from pylens.containers import SOURCE, MODEL, Container, LensObject
+from pylens.base_lenses import AnyOf, Group, Repeat
+from pylens.charsets import alphas, nums
+from pylens.containers import MODEL, SOURCE, Container, LensObject
 from pylens.core_lenses import Until
-from pylens.debug import assert_raises, assert_equal, describe_test
-from pylens.exceptions import NoTokenToConsumeException, NotFullyConsumedException
+from pylens.debug import assert_equal, assert_raises, describe_test
+from pylens.exceptions import NotFullyConsumedException, NoTokenToConsumeException
 from pylens.settings import GlobalSettings
 from pylens.util_lenses import (
-    Word,
-    KeyValue,
-    List,
-    WS,
-    Keyword,
-    ZeroOrMore,
     NL,
+    WS,
     BlankLine,
     HashComment,
+    KeyValue,
+    Keyword,
+    List,
+    Word,
+    ZeroOrMore,
 )
 
 

@@ -36,10 +36,10 @@
 # from debug import *
 # from base_lenses import *
 # from core_lenses import *
-from pylens.base_lenses import Repeat, AnyOf, Empty, And, Or, Lens, Group
-from pylens.charsets import nums, alphas, alphanums
+from pylens.base_lenses import And, AnyOf, Empty, Group, Lens, Or, Repeat
+from pylens.charsets import alphanums, alphas, nums
 from pylens.core_lenses import Until
-from pylens.debug import describe_test, assert_equal, assert_raises, assert_msg, d
+from pylens.debug import assert_equal, assert_msg, assert_raises, d, describe_test
 from pylens.exceptions import LensException
 from pylens.readers import ConcreteInputReader
 from pylens.settings import GlobalSettings
