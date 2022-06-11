@@ -31,8 +31,8 @@
 #   Stateful string reader classes (i.e. that can be rolled back for tentative parsing)
 #
 
-from .containers import *
-from .exceptions import EndOfStringException
+from .exceptions import EndOfStringException, LensException
+from .rollback import Rollbackable, automatic_rollback
 from .util import truncate
 
 

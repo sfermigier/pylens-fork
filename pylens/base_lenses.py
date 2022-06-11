@@ -36,13 +36,13 @@ whilst allowed us to extend it.
 """
 import inspect
 
+from .containers import ContainerFactory, AbstractContainer, LensObject
 from .exceptions import (
-    EndOfStringException,
     NoDefaultException,
     NotFullyConsumedException,
     TooFewIterationsException,
 )
-from .item import list_wrapper
+from .item import list_wrapper, enable_meta_data
 from .readers import *
 from .rollback import get_rollbackables_state
 from .settings import *
