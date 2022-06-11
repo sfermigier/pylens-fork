@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2010-2011, Nick Blundell
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
 #     * Neither the name of Nick Blundell nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -32,7 +32,7 @@ Main API functions for using pylens.
 """
 
 # Imports all lenses, some indirectly.
-from util_lenses import *
+# from util_lenses import *
 
 
 ##################################
@@ -42,6 +42,11 @@ from util_lenses import *
 # Hmmm, do we really need these.
 
 # COuld write Person.get() -> person and person.put()
+from pylens.base_lenses import Lens
+from pylens.containers import LensObject
+from pylens.debug import assert_msg
+from pylens.util_lenses import AutoGroup
+
 
 def get(lens, *args, **kargs) :
   """
@@ -50,7 +55,7 @@ def get(lens, *args, **kargs) :
   appropriate Lens class.
 
   Example::
-    
+
     get(Person, "Person::name=nick,surname=blundell") -> instance of Person class.
   """
   lens = Lens._coerce_to_lens(lens)
@@ -72,7 +77,7 @@ def put(lens_or_instance, *args, **kargs) :
     lens = Lens._coerce_to_lens(lens_or_instance.__class__)
     instance = lens_or_instance # For clarity.
     return lens.put(instance, *args, **kargs)
-  
+
   # Otherwise...
   lens = Lens._coerce_to_lens(lens_or_instance)
   # Wrap in AutoGroup, so outer container may be ommitted for convenience

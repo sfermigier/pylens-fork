@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2010, Nick Blundell
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
 #     * Neither the name of Nick Blundell nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -23,27 +23,40 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-# 
+#
 #
 #
 # Author: Nick Blundell <blundeln [AT] gmail [DOT] com>
 # Organisation: www.nickblundell.org.uk
-# 
+#
 # Description:
 #  Longer tests, which must have suffix '_test' to be picked up for automated
 #  testing.  Some of these are based on tricky config file examples given in the Augeas system
-#  Note that these lenses may not be completely accurate but are an aid to testing. 
-# 
+#  Note that these lenses may not be completely accurate but are an aid to testing.
+#
 
 from pylens import *
+from pylens.base_lenses import Repeat, AnyOf, Group
+from pylens.charsets import nums, alphas
+from pylens.containers import SOURCE, MODEL, Container
+from pylens.core_lenses import Until
+from pylens.debug import assert_raises, assert_equal, describe_test
+from pylens.exceptions import NoTokenToConsumeException, NotFullyConsumedException
+from pylens.settings import GlobalSettings
+from pylens.util_lenses import Word, KeyValue, List, WS, Keyword, ZeroOrMore, NL, BlankLine, \
+  HashComment
 
 
-def auto_list_test() :
+def d(*args):
+  print(*args)
+
+
+def test_auto_list() :
   lens = Repeat(AnyOf(nums, type=int), type=list, auto_list=True)
   d("GET")
   assert(lens.get("123") == [1,2,3])
   assert(lens.get("1") == 1)
-  
+
   d("PUT")
   assert(lens.put([5,6,7]) == "567")
   assert(lens.put(5) == "5")
@@ -52,9 +65,9 @@ def auto_list_test() :
   assert(lens.put(lens.get("1")) == "1")
 
 
-def dict_test() :
+def test_dict() :
 
-  
+
   # Test use of static labels.
   lens = Group(AnyOf(nums, type=int, label="number") + AnyOf(alphas, type=str, label="character"), type=dict, alignment=SOURCE)
   d("GET")
@@ -63,8 +76,8 @@ def dict_test() :
   assert(lens.put({"number":4, "character":"q"}, "1a") == "4q")
   with assert_raises(NoTokenToConsumeException) :
     lens.put({"number":4, "wrong_label":"q"}, "1a")
-  
- 
+
+
   # Test dynamic labels
   key_value_lens = Group(AnyOf(alphas, type=str, is_label=True) + AnyOf("*+-", default="*") + AnyOf(nums, type=int), type=list)
   lens = Repeat(key_value_lens, type=dict, alignment=SOURCE)
@@ -73,7 +86,7 @@ def dict_test() :
   got = lens.get("a+3c-2z*7")
   d(got)
   assert(got == {"a":[3], "c":[2], "z":[7]})
-  
+
   d("PUT")
   output = lens.put({"b":[9], "x":[5]})
   d(output)
@@ -96,7 +109,7 @@ def dict_test() :
   d("PUT")
   output = lens.put(got)
   assert(output == "a+3c-2z*7")
- 
+
   # For now this will loose some concrete, but later we will consider user-implied alignment
   # or at least label alignment rather than source alignment.
   d("Test auto_list with modification.")
@@ -107,9 +120,9 @@ def dict_test() :
 
 
 
-def consumption_test():
- 
-  test_description("Test input consumption")
+def test_consumption():
+
+  describe_test("Test input consumption")
   lens = Repeat(AnyOf(nums, type=int), type=list)
   with assert_raises(NotFullyConsumedException):
     lens.get("123abc") # This will leave 'abc'
@@ -117,19 +130,19 @@ def consumption_test():
   with assert_raises(NotFullyConsumedException):
     lens.put([1,2], "123abc")  # This will leave 'abc'
 
-  test_description("Test container consumption")
-  
+  describe_test("Test container consumption")
+
   # This will consume input but leave "a" in list.
   with assert_raises(NotFullyConsumedException):
     lens.put([1,2,"a"], "67")
 
 
-def list_test() :
+def test_list() :
 
   lens = Repeat(AnyOf(nums, type=int), type=list)
   d("GET")
   assert(lens.get("123") == [1,2,3])
-  
+
   d("PUT")
   assert(lens.put([5,6,7]) == "567")
 
@@ -137,8 +150,8 @@ def list_test() :
   assert(lens.put(lens.get("1")) == "1")
 
 
-def model_ordered_matching_list_test() :
-  
+def test_model_ordered_matching_list() :
+
   lens = Repeat(
     Group(AnyOf(alphas, type=str) + AnyOf("*+-", default="*") + AnyOf(nums, type=int), type=list),
     type=list, alignment=MODEL)
@@ -170,7 +183,7 @@ def model_ordered_matching_list_test() :
 
 
 
-def source_ordered_matching_list_test() :
+def test_source_ordered_matching_list() :
 
   lens = Repeat(
     Group(AnyOf(alphas, type=str) + AnyOf("*+-", default="*") + AnyOf(nums, type=int), type=list),
@@ -202,9 +215,9 @@ def source_ordered_matching_list_test() :
   d(output)
   assert(output == "a+3c-2m*6")
 
-def state_recovery_test():
+def test_state_recovery():
 
-  test_description("Test that the user's item's state is recovered after consumption.")
+  describe_test("Test that the user's item's state is recovered after consumption.")
   INPUT = "x=y;p=q"
   lens = List(KeyValue(Word(alphas, is_label=True)+"="+Word(alphas, type=str)), ";", type=dict)
   got = lens.get(INPUT)
@@ -219,7 +232,7 @@ def state_recovery_test():
   # warrent this test case.
 
 
-def lens_object_test():
+def test_lens_object():
   """
   Here we demonstrate the use of classes to define our data model which are
   related to a lens.
@@ -232,19 +245,19 @@ def lens_object_test():
       ";",
       type=None # XXX: I should get rid of default list type on List
     )
-    
+
     def __init__(self, name, last_name) :
       self.name, self.last_name = name, last_name
 
-  test_description("GET")
+  describe_test("GET")
   # Here we use the high-level API get() function, which is for convenience and
   # which equates to:
   #  lens = Group(Person.__lens__, type=Person)
   #  person = lens.get("Person::Name:nick;Last   Name:blundell")
   person = get(Person, "Person::Name:nick;Last   Name:blundell")
   assert(person.name == "nick" and person.last_name == "blundell")
-  test_description("PUT")
-  
+  describe_test("PUT")
+
   # Now we PUT it back with no modification and should get what we started with.
   output = put(person)
   assert_equal(output, "Person::Name:nick;Last   Name:blundell")
@@ -253,13 +266,13 @@ def lens_object_test():
   output = put(person)
   assert_equal(output, "Person::Name:nick;Last   Name:blundell")
 
-  test_description("CREATE")
+  describe_test("CREATE")
   new_person = Person("james", "bond")
   output = put(new_person)
-  
+
   # Test that consumed state is restored on a successful PUT.
   assert(new_person.name == "james" and new_person.last_name == "bond")
-  
+
   # XXX: Would be nice to control the order, but need to think of a nice way to
   # do this - need to cache source info of a label, which we can use when we
   # loose source info, also when a user declares attributes we can remember the
@@ -268,16 +281,16 @@ def lens_object_test():
   got_person = get(Person, output)
   # If all went well, we should GET back what we PUT.
   assert(got_person.name == "james" and got_person.last_name == "bond")
- 
 
-def constrained_lens_object_test():
+
+def test_constrained_lens_object():
   """
   Here we show how the user can constrain valid attributes of a LensObject.
   """
   return # TODO
-  
 
-def advanced_lens_object_test() :
+
+def test_advanced_lens_object():
   # Ref: http://manpages.ubuntu.com/manpages/hardy/man5/interfaces.5.html
   INPUT = """
 iface eth0-home inet static
@@ -293,45 +306,49 @@ auto eth1
 """
 
   class NetworkInterface(LensObject) :
-    
+
     __lens__ =  "iface" + WS(" ") + Keyword(additional_chars="_-", is_label=True) + WS(" ") + \
                 Keyword(label="address_family") + WS(" ") + Keyword(label="method") + NL() + \
                 ZeroOrMore(
                   KeyValue(WS("   ") + Keyword(additional_chars="_-", is_label=True) + WS(" ") + Until(NL(), type=str) + NL())
                 )
-    
+
     def __init__(self, **kargs) :
-      for key, value in kargs.iteritems() :
+      for key, value in kargs.items() :
         setattr(self, key, value)
 
     def _map_label_to_identifier(self, label) :
       return label.replace("-","_")
-    
+
     def _map_identifier_to_label(self, attribute_name) :
       return attribute_name.replace("_", "-")
 
   GlobalSettings.check_consumption = False
   if True :
-    test_description("Test GET NetworkInterface")
+    describe_test("Test GET NetworkInterface")
     interface = get(BlankLine() + NetworkInterface, INPUT)
     # Do some spot checks of our extracted object.
     assert_equal(interface._meta_data.singleton_meta_data.label, "eth0-home")
-    assert_equal(interface.address_family, "inet") 
-    assert_equal(interface.method, "static") 
-    assert_equal(interface.dns_nameservers, "67.207.128.4 67.207.128.5") 
-    assert_equal(interface.up, "flush-mail") 
-    
-    test_description("Test PUT NetworkInterface")
+    assert_equal(interface.address_family, "inet")
+    assert_equal(interface.method, "static")
+    assert_equal(interface.dns_nameservers, "67.207.128.4 67.207.128.5")
+    assert_equal(interface.up, "flush-mail")
+
+    describe_test("Test PUT NetworkInterface")
     interface.cheese_type = "cheshire"
     interface.address = "bananas"
     output = put(interface)
-    assert_equal(output, """iface eth0-home inet static
+
+    expected = """iface eth0-home inet static
    netmask 255.255.255.0
    gateway  67.207.128.1
    dns-nameservers 67.207.128.4 67.207.128.5
    up flush-mail
+   address bananas
    cheese-type cheshire
-   address bananas\n""")
+"""
+
+    assert output == expected
 
     # Try creating from scratch.
     interface = NetworkInterface(address_family="inet", method="static", dns_nameservers="1.2.3.4 1.2.3.5", netmask="255.255.255.0")
@@ -339,7 +356,7 @@ auto eth1
     assert_equal(output, """iface wlan3 inet static
    dns-nameservers 1.2.3.4 1.2.3.5
    netmask 255.255.255.0\n""")
-   
+
   #
   # Now let's create a class to represent the whole configuration.
   #
@@ -350,15 +367,15 @@ auto eth1
 
     interfaces = Container(store_items_of_type=[NetworkInterface], type=dict)
     auto_interfaces = Container(store_items_from_lenses=[auto_lens], type=list)
-  
+
   if True:
-    test_description("GET InterfaceConfiguration")
+    describe_test("GET InterfaceConfiguration")
     config = get(InterfaceConfiguration, INPUT)
     assert_equal(config.interfaces["eth0-home"].address, "192.168.1.1")
     assert_equal(config.auto_interfaces[0][1],"eth0")
     assert_equal(len(config.auto_interfaces),2)
-    
-    test_description("PUT InterfaceConfiguration")
+
+    describe_test("PUT InterfaceConfiguration")
     config.interfaces["eth0-home"].netmask = "bananas"
     config.auto_interfaces[0].insert(1,"wlan2")
     output = put(config)
@@ -374,26 +391,27 @@ auto lo wlan2 eth0
 # A comment
 auto eth1 
 """)
-  
-  test_description("CREATE InterfaceConfiguration")
+
+  describe_test("CREATE InterfaceConfiguration")
   GlobalSettings.check_consumption = True
   interface = NetworkInterface(address_family="inet", method="static", dns_nameservers="1.2.3.4 1.2.3.5", netmask="255.255.255.0")
   interface.some_thing = "something or another"
   config = InterfaceConfiguration()
   config.interfaces = {"eth3":interface}
   config.auto_interfaces = [["eth0"], ["wlan2", "eth2"]]
-  
+
   output = put(config)
-  assert_equal(output, """iface eth3 inet static
+  expected = """iface eth3 inet static
    dns-nameservers 1.2.3.4 1.2.3.5
-   some-thing something or another
    netmask 255.255.255.0
+   some-thing something or another
 auto eth0
 auto wlan2 eth2
-""")
+"""
+  assert output == expected
 
 
-def init_test():
+def test_init():
   """
   Just a few tests to figure out how we can use __new__ in object creation.
   """
@@ -402,17 +420,17 @@ def init_test():
   #  args.
 
   class Person(object):
-   
+
     age = 10
 
     def __new__(cls, *args, **kargs) :
       # It seems to me the args are passed only to allow customisation based
       # on them, since they are then passed to __init__ following this call in
       # typical creation.
-      
+
       # Create the instance, also passing args - since may also be used for
       # customisation.
-      self = super(Person, cls).__new__(cls, *args, **kargs)
+      self = super(Person, cls).__new__(cls)
       # Initialise some variables.
       self.name = None
       self.surname = None
@@ -420,11 +438,11 @@ def init_test():
 
       # Return the instance.
       return self
-    
+
     def __init__(self, name, surname):
       d("Constructor called")
       self.name, self.surname = name, surname
-    
+
     def __str__(self) :
       return "[%s, %s]" % (self.name, self.surname)
 

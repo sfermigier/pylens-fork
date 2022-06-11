@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2010-2011, Nick Blundell
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
 #     * Neither the name of Nick Blundell nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -23,12 +23,12 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-# 
+#
 #
 #
 # Author: Nick Blundell <blundeln [AT] gmail [DOT] com>
 # Organisation: www.nickblundell.org.uk
-# 
+#
 # Description:
 #   Isolates all debugging functions.
 #
@@ -41,13 +41,13 @@ except :
   set_indent_function = None
   IN_DEBUG_MODE = False
 
-from exceptions import *
+# from exceptions import *
 
 # More syntacticaly consistant assert function, for displaying explanations
 def assert_msg(condition, msg=None) :
   assert condition, (msg or "")
 
-def test_description(msg) :
+def describe_test(msg) :
   """A debug message that will stand out."""
   msg = "========= " + msg + " ========="
   return d(msg)
@@ -57,17 +57,17 @@ def assert_equal(got, expected) :
 
 class assert_raises:
   """A cleaner way to assert that an exception is thrown from some code."""
-  
+
   def __init__(self, exception_class) :
     self.exception_class = exception_class
-  
+
   def __enter__(self) :
     pass
-  
+
   def __exit__(self, type, exception, traceback) :
     if not exception :
       raise Exception("Expected to see exception: %s" % self.exception_class)
-    
+
     # Returning True means 'suppress exception', which we do if the exception is
     # of the type we expected.
     return isinstance(exception, self.exception_class)
@@ -75,7 +75,7 @@ class assert_raises:
   @staticmethod
   def TESTS() :
     d("Testing")
-    
+
     # Assert the ZeroDivisionError is thrown.
     with assert_raises(ZeroDivisionError) :
       x = 1 / 0
@@ -84,7 +84,7 @@ class assert_raises:
     with assert_raises(Exception) :
       with assert_raises(ZeroDivisionError) :
         x = 1 / 1
-    
+
     # Confirm that the unexpected exception is let through.  My most beautiful test, ever!
     with assert_raises(IndexError) :
       with assert_raises(ZeroDivisionError) :
@@ -97,18 +97,18 @@ def auto_name_lenses(local_variables) :
   useful for tracing parsing. Should be called with globals()/locals()
   """
   from pylens.base_lenses import Lens
-  for variable_name, obj in local_variables.iteritems() :
+  for variable_name, obj in local_variables.items() :
     if isinstance(obj, Lens) :
       obj.name = variable_name
 
 
 # Set an debug message indentation function if the debug library is in use.
 if set_indent_function :
-  
+
   def debug_indent_function() :
     """
     Nicely indents the debug messages according to the hierarchy of lenses.
-    """ 
+    """
     import inspect
     # Create a list of all function names in the trace.
     function_names = []
@@ -126,7 +126,7 @@ if set_indent_function :
       indent += function_names.count(name)
     indent -= 1
     indent = max(0, indent)
-   
+
     return " "*indent
 
   set_indent_function(debug_indent_function)

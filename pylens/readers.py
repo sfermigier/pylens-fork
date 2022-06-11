@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2010, Nick Blundell
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
 #     * Neither the name of Nick Blundell nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -23,25 +23,22 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-# 
+#
 # Author: Nick Blundell <blundeln [AT] gmail [DOT] com>
 # Organisation: www.nickblundell.org.uk
-# 
+#
 # Description:
 #   Stateful string reader classes (i.e. that can be rolled back for tentative parsing)
 #
 
-from debug import *
-from exceptions import *
-from util import *
-from containers import *
+from .containers import *
 
 
 class ConcreteInputReader(Rollbackable):
   """Stateful reader of the concrete input string."""
 
   def __init__(self, input_string):
-    
+
     # If input_string is in fact a ConcreteInputReader, copy its state.
     if isinstance(input_string, self.__class__) :
       self.position = input_string.position
@@ -126,12 +123,12 @@ class ConcreteInputReader(Rollbackable):
     assert not concrete_reader.is_fully_consumed()
     assert concrete_reader.get_remaining() == "CD"
     assert concrete_reader.get_consumed_string(0) == "AB"
-    
+
     for i in range(0,2) :
       output += concrete_reader.consume_char()
     assert output == "ABCD"
     assert concrete_reader.is_fully_consumed()
-    
+
     concrete_reader = ConcreteInputReader("ABCD")
 
     # Now test with rollback.

@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2010-2011, Nick Blundell
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
 #     * Neither the name of Nick Blundell nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -23,19 +23,14 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-# 
+#
 # Author: Nick Blundell <blundeln [AT] gmail [DOT] com>
 # Organisation: www.nickblundell.org.uk
-# 
 #
-import inspect
+#
 import sys
-from exceptions import *
-from containers import *
-from readers import *
-from util import *
-from debug import *
-from base_lenses import *
+
+from .base_lenses import *
 
 
 class Forward(Lens):
@@ -49,31 +44,31 @@ class Forward(Lens):
     super(Forward, self).__init__(**options)
     d("Creating")
     self.recursion_limit = recursion_limit
-  
+
   def bind_lens(self, lens) :
     d("Binding to lens %s" % lens)
     assert_msg(len(self.lenses) == 0, "The lens cannot be re-bound.")
     self.set_sublens(lens)
-  
+
   def _get(self, *args, **kargs) :
     assert_msg(len(self.lenses) == 1, "A lens has yet to be bound.")
     return self.lenses[0]._get(*args, **kargs)
 
   def _put(self, *args, **kargs) :
     assert_msg(len(self.lenses) == 1, "A lens has yet to be bound.")
-    
+
     # Ensure the recursion limit is set before we start this.
     original_limit = sys.getrecursionlimit()
     if self.recursion_limit :
       sys.setrecursionlimit(self.recursion_limit)
-    
+
     try :
       output = self.lenses[0]._put(*args, **kargs)
     except RuntimeError:
       raise InfiniteRecursionException("You will need to alter your grammar, perhaps changing the order of Or lens operands")
     finally :
       sys.setrecursionlimit(original_limit)
-    
+
     return output
 
 
@@ -92,13 +87,13 @@ class Forward(Lens):
     # Now define the lens (must use '<<' rather than '=', since cannot easily
     # override '=').
     lens << "[" + (AnyOf(alphas, type=str) | lens) + "]"
-    
+
     # Ensure the lens is enclosed in a container lens.
     lens = Group(lens, type=list)
-    
+
     got = lens.get("[[[h]]]")
     assert(got == ["h"])
-    
+
     d("PUT")
     got[0] = "p"
     output = lens.put(got)
@@ -108,25 +103,25 @@ class Forward(Lens):
     d("CREATE")
     output = lens.put(["k"])
     assert(output == "[k]")
-    
+
     # If we alter the grammar slightly, we will get an infinite recursion error,
     # since the lens could recurse to an infinite depth before considering the
     # AnyOf() lens.
-    lens = Forward() 
+    lens = Forward()
     lens << "[" + (lens | AnyOf(alphas, type=str)) + "]"
     lens = Group(lens, type=list)
     with assert_raises(InfiniteRecursionException) :
       output = lens.put(["k"])
-    
+
 
 class Until(Lens) :
   """
   Match anything up until the specified lens.  This is useful for lazy parsing,
   but not the be overused (e.g. chaining can be bad: Until("X") + Until("Y")!).
-  
+
   # TODO: Could parse lens but not include in stored string.
   """
-  
+
   def __init__(self, lens, include_lens=False, **options):
     """
     Arguments:
@@ -140,12 +135,12 @@ class Until(Lens) :
     # Note, we add force_return here so that put can utilise output regardless of
     # whether or not this is a STORE lens.  Really I should create a parsing
     # function which both get and put use.
-    
+
     # Remember the input position before we start to consume chars.
     initial_position = concrete_input_reader.get_pos()
-    
+
     stopping_lens = self.lenses[0]
-   
+
     while True :
       start_state = get_rollbackables_state(concrete_input_reader)
       try :
@@ -162,12 +157,12 @@ class Until(Lens) :
           pass
 
         break
-      
+
       except LensException :
         # We have not reached the stopping lens in input yet, so we rollback and then carry on.
         d("stopping_lens failed soi continuing.")
         set_rollbackables_state(start_state, concrete_input_reader)
-      
+
       # Advance the input reader by one char - this will form part of our lens' GOTen string.
       try :
         concrete_input_reader.consume_char()
@@ -175,14 +170,14 @@ class Until(Lens) :
         # Break if we reach the end of the input.
         break
 
-    parsed_chars = concrete_input_reader.get_consumed_string(initial_position) 
+    parsed_chars = concrete_input_reader.get_consumed_string(initial_position)
 
     if not parsed_chars :
       raise LensException("Expected to get at least one character!")
-  
+
     if self.has_type() or force_return :
       return parsed_chars
-    
+
     # Return nothing if we are not a STORE lens.
     return None
 
@@ -191,7 +186,7 @@ class Until(Lens) :
     if self.has_type() :
       if not isinstance(item, str) and len(item) > 0:
         raise Exception("Expected to be passed a string of length at least one character, not %s." % item)
-      
+
       # Consume input.
       if concrete_input_reader :
         self.get(concrete_input_reader)
@@ -199,7 +194,7 @@ class Until(Lens) :
     else :
       if has_value(item):
         raise LensException("As a non-STORE lens, %s did not expect to be passed an item %s to PUT." % (self, item))
-      
+
       # Use output from input, or fail if we have no concrete input.
       if concrete_input_reader :
         output = self._get(concrete_input_reader, None, force_return=True)
@@ -219,8 +214,8 @@ class Until(Lens) :
     d("PUT")
     output = lens.put(["monkey"])
     assert(output == "(monkey)")
-   
-    test_description("Try with include_lens=True")
+
+    describe_test("Try with include_lens=True")
     assert(lens.get(lens.put(["monkey"])) == ["monkey"])
     lens = Group("("+Until(")", type=str, include_lens=True), type=list)
     got = lens.get("(in the middle)")

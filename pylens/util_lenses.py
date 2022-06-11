@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2010-2011, Nick Blundell
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
 #     * Neither the name of Nick Blundell nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -23,19 +23,27 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-# 
+#
 # Author: Nick Blundell <blundeln [AT] gmail [DOT] com>
 # Organisation: www.nickblundell.org.uk
-# 
 #
-import inspect
-from exceptions import *
-from containers import *
-from readers import *
-from util import *
-from debug import *
-from base_lenses import *
-from core_lenses import *
+#
+# import inspect
+# from exceptions import *
+# from containers import *
+# from readers import *
+# from util import *
+# from debug import *
+# from base_lenses import *
+# from core_lenses import *
+from pylens.base_lenses import Repeat, AnyOf, Empty, And, Or, Lens, Group
+from pylens.charsets import nums, alphas, alphanums
+from pylens.core_lenses import Until
+from pylens.debug import describe_test, assert_equal, assert_raises, assert_msg, d
+from pylens.exceptions import LensException
+from pylens.readers import ConcreteInputReader
+from pylens.settings import GlobalSettings
+from pylens.util import has_value
 
 
 class OneOrMore(Repeat) :
@@ -81,7 +89,7 @@ class List(And) :
 
   @staticmethod
   def TESTS() :
-    
+
     lens = List(AnyOf(nums, type=int), ",", type=list)
     d("GET")
     assert(lens.get("1,2,3") == [1,2,3])
@@ -89,7 +97,7 @@ class List(And) :
     assert(lens.put([6,2,6,7,4,8]) == "6,2,6,7,4,8")
 
     # It was getting flattened due to And within And!
-    test_description("Test a bug I found with nested lists.")
+    describe_test("Test a bug I found with nested lists.")
     INPUT = "1|2,3|4,5|6"
     lens = List(
              List(AnyOf(nums, type=int), "|", name="inner_list", type=list),
@@ -147,14 +155,14 @@ class Word(And) :
 
     left_lens = AnyOf(init_chars or body_chars, type=any_of_type)
     right_lens = Repeat(AnyOf(body_chars, type=any_of_type), min_count=min_count-1, max_count=max_count and max_count-1 or None)
-    
+
     super(Word, self).__init__(left_lens, right_lens, **options)
 
   @staticmethod
   def TESTS() :
 
     GlobalSettings.check_consumption = False
-    
+
     lens = Word(alphanums, init_chars=alphas, type=str, max_count=5)
     d("GET")
     assert(lens.get("w23dffdf3") == "w23df")
@@ -163,15 +171,15 @@ class Word(And) :
 
     d("PUT")
     assert(lens.put("R2D2") == "R2D2")
-    
+
     with assert_raises(LensException) :
       lens.put("2234") == "R2D2"
-    
+
     # XXX: Should fail if length checking working correctly.
     #with assert_raises(LensException) :
     #  lens.put("TooL0ng")
- 
-    
+
+
     d("Test with no type")
     lens = Word(alphanums, init_chars=alphas, max_count=5, default="a123d")
     assert(lens.get("w23dffdf3") == None)
@@ -187,7 +195,7 @@ class Whitespace(Or) :
   Whitespace helper lens, that knows how to handle (logically) continued lines with '\\n'
   or that preclude an indent which are useful for certain config files.
   """
-  
+
   def __init__(self, default=" ", optional=False, space_chars=" \t", slash_continuation=False, indent_continuation=False, **options):
     # Ensure default gets passed up to parent class - we use default to
     # determine if this lens is optional
@@ -196,7 +204,7 @@ class Whitespace(Or) :
       # XXX: Could adapt this for storing spaces, though to be useful would need
       # to construct in such a way as to combine chars.
       assert_msg(False, "This lens cannot be used as a STORE lens")
-      
+
     # XXX: This could be used later when we wish to make this a STORE lens.
     word_type = None
 
@@ -204,9 +212,9 @@ class Whitespace(Or) :
 
     # Set-up a lens the literally matches space.
     spaces = Word(space_chars, type=word_type, name="spaces")
-    
+
     or_lenses = []
-    
+
     # Optionally, augment with a slash continuation lens.
     if slash_continuation :
       or_lenses.append(Optional(spaces) + "\\\n" + Optional(spaces))
@@ -229,7 +237,7 @@ class Whitespace(Or) :
 
   @staticmethod
   def TESTS() :
-   
+
     GlobalSettings.check_consumption = False
 
     # Simple whitespace.
@@ -237,7 +245,7 @@ class Whitespace(Or) :
     concrete_input_reader = ConcreteInputReader("  \t  xyz")
     assert(lens.get(concrete_input_reader) == None and concrete_input_reader.get_remaining() == "xyz")
     assert(lens.put() == " ")
-    
+
     # Test that the Empty lens is valid when the default space is set to empty string (i.e. not space).
     lens = Whitespace("")
     assert(lens.get("xyz") == None)
@@ -304,7 +312,7 @@ class AutoGroup(Group):
   item may be passed through the lens.  If the enclosed lens has a type, then
   this lens simply becomes a transparent wrapper.
   """
- 
+
   def __init__(self, lens, **options):
     """Note, this replaces __init__ of Group, which checks for a type."""
     if not lens.has_type() :

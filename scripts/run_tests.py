@@ -54,7 +54,7 @@ def get_tests() :
   
   # Automatically discover test routines.
   tests = {}
-  for name, item in globals().iteritems() :
+  for name, item in globals().items() :
     # Add (long) test functions, or class unit tests
     if name.lower().endswith(FUNCTION_TEST_SUFFIX) :
       tests[name] = item
@@ -88,7 +88,7 @@ def run_tests(test_mode, args) :
     filtered_tests = all_tests
   
   test_suite = unittest.TestSuite()
-  for name, test_function in filtered_tests.iteritems() :
+  for name, test_function in filtered_tests.items() :
     testcase = unittest.FunctionTestCase(test_function, description=name, setUp=test_set_up)
     test_suite.addTest(testcase)
  

@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2010-2011, Nick Blundell
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
 #     * Neither the name of Nick Blundell nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -23,19 +23,18 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-# 
+#
 #
 #
 # Author: Nick Blundell <blundeln [AT] gmail [DOT] com>
 # Organisation: www.nickblundell.org.uk
-# 
+#
 # Description:
 #   Defines a Rollbackable class and util functions.
 #
 
 import copy
-from debug import *
-from exceptions import *
+from .exceptions import *
 
 
 class Rollbackable(object) :
@@ -62,7 +61,7 @@ class Rollbackable(object) :
       return copy.deepcopy(self.__dict__)
     else :
       return self.__dict__
-      
+
 
   def _set_state(self, state, copy_state=True) :
     """
@@ -133,10 +132,10 @@ def get_rollbackables_state(*rollbackables, **kargs) :
   for rollbackable in rollbackables :
     if isinstance(rollbackable, Rollbackable) :
       rollbackables_state.append(rollbackable._get_state(copy_state=copy_state))
-  
+
   #if IN_DEBUG_MODE :
   #  d("Getting state : %s" % rollbackables_state)
-  
+
   return rollbackables_state
 
 def set_rollbackables_state(new_rollbackables_state, *rollbackables, **kargs) :
@@ -164,7 +163,7 @@ class automatic_rollback:
 
   Possible extensions:
   """
-  
+
   def __init__(self, *rollbackables, **kargs) :
     # Store the rollbackables. Note, for convenience, allow rollbackables to be None (i.e. store only Reader instances)
     self.some_state_changed = False
@@ -172,7 +171,7 @@ class automatic_rollback:
     # Allows initial state to be reused.
     self.initial_state = "initial_state" in kargs and kargs["initial_state"] or None
     self.rollbackables = rollbackables
-  
+
   def __enter__(self) :
     # Store the start state of each reader, unless we have been passed some
     # initial state to reuse.
@@ -180,13 +179,13 @@ class automatic_rollback:
       self.start_state = self.initial_state
     else :
       self.start_state = get_rollbackables_state(*self.rollbackables)
-  
+
   def __exit__(self, type, value, traceback) :
     # If a RollbackException is thrown, revert all of the rollbackables.
     if type and issubclass(type, RollbackException) :
       set_rollbackables_state(self.start_state, *self.rollbackables)
       d("Rolled back rollbackables to: %s." % str(self.rollbackables))
-   
+
     # XXX: Optimise this to first check for concrete reader.
     if self.check_for_state_change :
       # Not changing this state, so no need to copy it.
@@ -207,7 +206,7 @@ class automatic_rollback:
     o_1 = SomeClass(1, [3,4])
     o_2 = None                # Important that we can handle None to simplify code.
     o_3 = SomeClass(1, [3,4])
-   
+
     try :
       with automatic_rollback(o_1, o_2, o_3):
         o_1.x = 3
@@ -217,7 +216,7 @@ class automatic_rollback:
         raise LensException() # In practice we will usually use LensException
     except LensException:
       pass # Don't wish to stop test run.
-       
+
     # Check we rolled back.
     assert(o_1.x == 1)
     assert(o_3.y == [3,4])

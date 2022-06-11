@@ -73,7 +73,7 @@ auto eth1
     
     def __init__(self, **kargs) :
       """A simple constructor, which simply store keyword args as attributes."""
-      for key, value in kargs.iteritems() :
+      for key, value in kargs.items() :
         setattr(self, key, value)
 
     # Define label mappings, so labels such as "dns-nameservers" are mapped to and

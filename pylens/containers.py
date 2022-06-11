@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2010, Nick Blundell
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
 #     * Neither the name of Nick Blundell nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -23,7 +23,7 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-# 
+#
 #
 #
 # Author: Nick Blundell <blundeln [AT] gmail [DOT] com>
@@ -32,15 +32,10 @@
 # Description:
 #  Consumable containers for abstract storage of model items.
 #
-import inspect
-import copy
 import re
 
-from debug import *
-from exceptions import *
-from util import *
-from item import *
-from rollback import *
+from .item import *
+from .rollback import *
 
 # Item alignment modes for containers.
 SOURCE = "SOURCE"
@@ -67,7 +62,7 @@ class AbstractContainer(Rollbackable) :
   """
 
   def __new__(cls, *args, **kargs) :
-    self = super(AbstractContainer, cls).__new__(cls, *args, **kargs)
+    self = super(AbstractContainer, cls).__new__(cls)
     # Initialise some vars regardless of __init__ being called.
     self._container_lens = None
     self._label = None
@@ -97,7 +92,7 @@ class AbstractContainer(Rollbackable) :
 
   #
   # Can overload these for more control (e.g. tentative PUT/CREATE if non-deterministic)
-  # 
+  #
 
   def get_and_store_item(self, lens, concrete_input_reader) :
     """Called by lenses that store items from sub-lenses in the container (e.g. And)."""
@@ -117,7 +112,7 @@ class AbstractContainer(Rollbackable) :
     """Called by lenses that put items from the container into sub-lenses (e.g. And)."""
     assert(lens.has_type())
     assert_msg(has_value(self._container_lens), "Our container has not been associated with a container type lens.")
-   
+
     # Handle is_label lens
     if lens.options.is_label:
       if not self._label :
@@ -130,11 +125,11 @@ class AbstractContainer(Rollbackable) :
     candidates = self.get_put_candidates(lens, concrete_input_reader)
 
     d("Unfiltered candidates: %s" % candidates)
-    
+
     # Filter and sort them appropriately for our context (e.g. the lens, the
     # alignment mode and the current input postion.
     candidates = self.filter_and_sort_candidate_items(candidates, lens, concrete_input_reader)
-    
+
     d("Filtered candidates: %s" % candidates)
 
     for candidate in candidates :
@@ -176,8 +171,8 @@ class AbstractContainer(Rollbackable) :
       if len(candidate_items) > 0:
         return [candidate_items[0]]
       else:
-        return [] 
-    
+        return []
+
     # Handle SOURCE alignment.
     if self._alignment_mode == SOURCE :
       # Copy candidate_items.
@@ -185,24 +180,24 @@ class AbstractContainer(Rollbackable) :
         if has_value(item._meta_data.concrete_start_position) :
           return item._meta_data.concrete_start_position
         return LARGE_INTEGER # To ensure new items go on the end.
-      
+
       # Sort the candiates by their source order - if they have meta on their
       # source position.
       sorted_candidate_items = sorted(candidate_items, key = get_key)
       return sorted_candidate_items
     # TODO: LABEL alignment mode
-    
+
     raise Exception("Unknown alignment mode: %s" % self._alignment_mode)
 
 
   #
   # Must overload these.
-  # 
+  #
 
   def get_put_candidates(self, lens, concrete_input_reader) :
     """Returns a list of candidate items that could be PUT into the lens."""
     raise NotImplementedError()
-  
+
   def remove_item(self, lens, item) :
     raise NotImplementedError()
 
@@ -214,7 +209,7 @@ class AbstractContainer(Rollbackable) :
     pass
 
   def unwrap(self) :
-    """Unwrap to native python type where appropriate: e.g. for list and dict.""" 
+    """Unwrap to native python type where appropriate: e.g. for list and dict."""
     raise NotImplementedError()
 
   def is_fully_consumed(self) :
@@ -226,21 +221,21 @@ class AbstractContainer(Rollbackable) :
     lens is used), this should be discounted.
     """
     raise NotImplementedError()
-    
+
 
 
 class ListContainer(AbstractContainer) :
   """Most basic container, for storing items in a list."""
 
   def __new__(cls, *args, **kargs) :
-    self = super(ListContainer, cls).__new__(cls, *args, **kargs)
+    self = super(ListContainer, cls).__new__(cls)
     self.container_item = []
     return self
-  
+
   def __init__(self, container_item) :
     assert isinstance(container_item, list)
     self.container_item = container_item
-  
+
     assert_msg(isinstance(self.container_item, list))
 
     # Ensure our items can carry meta data (for algorithmic convenience) and be careful
@@ -248,11 +243,11 @@ class ListContainer(AbstractContainer) :
     # Perhaps this can be done in AbstractContainer
     for index, item in enumerate(self.container_item) :
       self.container_item[index] = enable_meta_data(item)
-    
-      
+
+
   def get_put_candidates(self, lens, concrete_input_reader) :
     return self.container_item
-  
+
   def remove_item(self, lens, item) :
     #d("Removing item %s" % item)
     self.container_item.remove(item)
@@ -260,7 +255,7 @@ class ListContainer(AbstractContainer) :
   def store_item(self, item, lens, concrete_input_reader) :
     self.container_item.append(item)
 
-  
+
   def unwrap(self):
     return self.container_item
 
@@ -275,14 +270,14 @@ class ListContainer(AbstractContainer) :
   def __str__(self) :
     return str(self.container_item)
   __repr__ = __str__
-  
+
   def is_fully_consumed(self) :
     return len(self.container_item) == 0
 
 
 class DictContainer(ListContainer) :
   """Allows a list of items with labels to be accessed as a native python dict."""
-  
+
   def __init__(self, container_item) :
     """
     We actually use all the functionality of the ListContainer, which we
@@ -300,7 +295,7 @@ class DictContainer(ListContainer) :
     # XXX: Perhaps this should got in prepare_for_put.
     # Now add the items to the list, updating their labels from keys.
     assert isinstance(container_item, dict)
-    for key, item in container_item.iteritems() :
+    for key, item in container_item.items() :
       item = enable_meta_data(item)
       item._meta_data.label = key
       items_as_list.append(item)
@@ -333,20 +328,20 @@ class DictContainer(ListContainer) :
 # properties set on these two classes, such as specific label-attribute
 # mappings, etc.
 
-class Attribute(Properties) : 
+class Attribute(Properties) :
   """
   This class is used for declaring an attribute of a LensObject
-  
+
   The static counter is used so we can infer the order of declaration of attributes.
   """
-  
+
   counter = 0
   def __init__(self, *args, **kargs) :
     super(Attribute, self).__init__(*args, **kargs)
     self._counter = self.__class__.counter
     self.__class__.counter += 1
-    
-    
+
+
 class Container(Attribute) :
   """Used for declaring a container attribute of a LensObject."""
   pass
@@ -368,7 +363,7 @@ class LensObject(AbstractContainer) :
   # class seems a good a place as any to store this globally-useful data.
   __cached_labels = {}
 
-  
+
   def __new__(cls, *args, **kargs) :
     """
     It is important that container objects can be created without arguments
@@ -376,7 +371,7 @@ class LensObject(AbstractContainer) :
     __init__ is called.
     """
     self = super(LensObject, cls).__new__(cls, *args, **kargs)
-  
+
     # If sub-containers have been specified on the class, instantiate them on the instance.
     self._create_containers_and_attributes()
 
@@ -390,7 +385,7 @@ class LensObject(AbstractContainer) :
   #
 
   def store_item(self, item, lens, concrete_input_reader) :
-    
+
     # First see if the item is to be stored in one of our containers.
     sub_container = self._get_item_sub_container(lens, item)
     if sub_container :
@@ -402,27 +397,27 @@ class LensObject(AbstractContainer) :
     # TODO: If constrained attributes, check within set.
     setattr(self, self.map_label_to_identifier(item._meta_data.label), item)
 
-  
+
   def unwrap(self):
     """We are both the container and the native object."""
     # XXX: Note, somewhere before PUT we must reciprocate this.
     # Unwrap any sub containers.
-    for name, container in self._containers.iteritems() :
+    for name, container in self._containers.items() :
       setattr(self, name, container.unwrap())
 
     return self
- 
+
   #
   # PUT related.
   #
-  
+
   def set_container_lens(self, lens) :
     # TODO: Shall we call on sub containers - perhaps not, since can set alignment from props
     super(LensObject, self).set_container_lens(lens)
     # For a general class container, SOURCE alignment will be a more common default.
     # Maybe LABEL mode would be more suitable when I implement it.
     self._alignment_mode = self._container_lens.options.alignment or SOURCE
- 
+
 
   def get_put_candidates(self, lens, concrete_input_reader) :
     # First see if the item is to be put from one of our containers.
@@ -444,10 +439,10 @@ class LensObject(AbstractContainer) :
       item = self.__dict__[attr_name]
       if has_value(item) :
         candidates.append(item)
-    
+
     return candidates
 
- 
+
   def remove_item(self, lens, item) :
     # First see if the item is to be put from one of our containers.
     sub_container = self._get_item_sub_container(lens, item)
@@ -455,9 +450,9 @@ class LensObject(AbstractContainer) :
       d("Removing %s from %s" % (item, sub_container))
       sub_container.remove_item(lens, item)
       return
-    
+
     d("Preparing to remove %s" % item)
-    for attr_name, value in self.__dict__.iteritems() :
+    for attr_name, value in self.__dict__.items() :
       if value is item :
         del self.__dict__[attr_name]
         return
@@ -469,9 +464,9 @@ class LensObject(AbstractContainer) :
     """Here we ensure any raw containers are wrapped as AbstractContainers - the opposite of unwrap()."""
     # Ensure all items that may be PUT may carry meta data.
     self._enable_attributes_meta()
-    
+
     # Note, if there is no raw_container, __new__ would have ensure we still have an empty container in _containers
-    for name, container in self._containers.iteritems() :
+    for name, container in self._containers.items() :
       # We do not use getattr, since it may return a class attribute by same name.
       raw_container = get_instance_attr(self, name, None)
       if not has_value(raw_container):
@@ -487,7 +482,7 @@ class LensObject(AbstractContainer) :
         return False
 
     # Then, check if at least one of our containers is not fully consumed.
-    for sub_container in self._containers.itervalues() :
+    for sub_container in self._containers.values() :
       if not sub_container.is_fully_consumed() :
         return False
 
@@ -506,14 +501,14 @@ class LensObject(AbstractContainer) :
 
     # Check we end up with a valid python keyword.
     if not re.match(r"[a-zA-Z][a-zA-Z0-9_]*$", identifier) :
-      raise Exception("Cannot express label '%s' (converted to '%s') as a python identifer to set as an object attribute - you will have to specialise this functionality for your purposes." % (label, identifier)) 
-   
+      raise Exception("Cannot express label '%s' (converted to '%s') as a python identifer to set as an object attribute - you will have to specialise this functionality for your purposes." % (label, identifier))
+
     # Cache this conversion on the class, since it may be useful to improve
     # CREATED labels.
     self.__class__.__cached_labels[identifier] = label
 
     return identifier
-  
+
   def map_identifier_to_label(self, identifier) :
     if identifier in self.__class__.__cached_labels :
       return self.__class__.__cached_labels[identifier]
@@ -529,7 +524,7 @@ class LensObject(AbstractContainer) :
     # XXX: We could pre-compile this regex.
     identifier = re.sub(r"[ ]+", "_", identifier)
     return identifier
-  
+
   def _map_identifier_to_label(self, identifier) :
     """ This might be overridded to specialise this functionality for a specific.  """
     return identifier.replace("_", " ")
@@ -542,7 +537,7 @@ class LensObject(AbstractContainer) :
     """Create any sub-containers, if declared."""
     self._containers = {}
     self._constrained_attributes = {}
-    for key, value in self.__class__.__dict__.iteritems() :
+    for key, value in self.__class__.__dict__.items() :
       # Handle containers.
       if isinstance(value, Container) :
         container_properties = value
@@ -565,7 +560,7 @@ class LensObject(AbstractContainer) :
     #  d(item)
     #  assert(item._meta_data.lens)
 
-    for name, container in self._containers.iteritems() :
+    for name, container in self._containers.items() :
       container_properties = self.__class__.__dict__[name]
       d("looking for item to match lens %s" % lens)
       if has_value(container_properties.store_items_from_lenses) and lens in container_properties.store_items_from_lenses :
@@ -592,16 +587,16 @@ class LensObject(AbstractContainer) :
     Note that any attribute that starts with an underscore will be excluded, so
     this aims to exclude any other attributes, such as sub-container attributes.
     """
-    self._excluded_attributes = self.__dict__.keys() + self._containers.keys()
+    self._excluded_attributes = list(self.__dict__.keys()) + list(self._containers.keys())
 
 
   def _get_attribute_names(self) :
     """Returns the names of attributes that are being used to hold data items."""
-    
+
     # If the useable attributes have been declared, use their names here, in declaration order.
     if self._constrained_attributes :
       # Sort the items according to their declaration order - captured by a static counter in Attribute
-      items = sorted(self._constrained_attributes.iteritems(), key=lambda x: x[1]._counter)
+      items = sorted(self._constrained_attributes.items(), key=lambda x: x[1]._counter)
       attributes = [item[0] for item in items]
       return attributes
 
@@ -610,7 +605,7 @@ class LensObject(AbstractContainer) :
     for attr_name in self.__dict__.keys() :
       if attr_name not in self._excluded_attributes and not attr_name.startswith("_"):
         attributes.append(attr_name)
-    
+
     return attributes
 
   def _enable_attributes_meta(self) :
@@ -633,21 +628,21 @@ class LensObject(AbstractContainer) :
   def _get_state(self, copy_state=True) :
     # Get our state.
     state = [copy_state and copy.copy(self.__dict__) or self.__dict__]
-    
+
     # Then append state of our containers.
-    for sub_container in self._containers.itervalues() :
+    for sub_container in self._containers.values() :
       state.append(sub_container._get_state(copy_state=copy_state))
-    
+
     return state
 
   def _set_state(self, state, copy_state=True) :
     # XXX: Is there any conflict here with broad use of __dict__?
     # Set our state.
     self.__dict__ = copy_state and copy.copy(state[0]) or state[0]
-    
+
     # Then set the state of our containers.
     i = 1
-    for sub_container in self._containers.itervalues() :
+    for sub_container in self._containers.values() :
       sub_container._set_state(state[i], copy_state=copy_state)
       i += 1
 
@@ -675,7 +670,7 @@ class ContainerFactory:
       return ListContainer
     elif issubclass(incoming_type, dict) :
       return DictContainer
-    
+
     return None
 
 
@@ -687,10 +682,10 @@ class ContainerFactory:
     """
     # See if the lens type has a container class.
     container_class = ContainerFactory.get_container_class(container_type)
-    
+
     if container_class == None:
       return None
-    
+
     # We do not call the constructor, which may require args.
     return container_class.__new__(container_class)
 
@@ -699,7 +694,7 @@ class ContainerFactory:
     """Wraps a container if possible."""
     if not has_value(incoming_object) :
       return None
-    
+
     if issubclass(type(incoming_object), AbstractContainer) :
       container = incoming_object
     else :
@@ -707,10 +702,10 @@ class ContainerFactory:
       container_class = ContainerFactory.get_container_class(type(incoming_object))
       if not has_value(container_class) :
         return None
-     
+
       # Pass the raw data item to wrap.
       container = container_class(incoming_object)
-   
+
     # Allow the container to prepare to be PUT (e.g. wrap any sub containers).
     container.prepare_for_put()
     # Set the (consumable) label of the container based on the item's current
