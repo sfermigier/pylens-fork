@@ -2,6 +2,32 @@ from pylens.exceptions import LensException
 from pylens.rollback import Rollbackable, automatic_rollback
 
 
+def test_rollbackable():
+    class SomeClass(Rollbackable):
+        def __init__(self, x, y):
+            self.x, self.y = x, y
+
+    o = SomeClass(1, [3, 4])
+    state1 = o._get_state()
+    o.x = 3
+    o.y.append(16)
+    assert o.x == 3
+    assert o.y == [3, 4, 16]
+
+    o._set_state(state1)
+    assert o.x == 1
+    assert o.y == [3, 4]
+
+    # Test value comparision.
+    o1 = SomeClass(1, [3, 4])
+    o2 = SomeClass(1, [3, 4])
+    assert o1 == o2
+    o2.y[1] = 9
+    assert o1 != o2
+    o2.y[1] = 4
+    assert o1 == o2
+
+
 def test_automatic_rollback():
     class SomeClass(Rollbackable):
         def __init__(self, x, y):

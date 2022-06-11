@@ -74,25 +74,6 @@ class assert_raises:
         # of the type we expected.
         return isinstance(exception, self.exception_class)
 
-    @staticmethod
-    def TESTS():
-        d("Testing")
-
-        # Assert the ZeroDivisionError is thrown.
-        with assert_raises(ZeroDivisionError):
-            x = 1 / 0
-
-        # Assert that we expected the ZeroDivisionError to be thrown.
-        with assert_raises(Exception):
-            with assert_raises(ZeroDivisionError):
-                x = 1 / 1
-
-        # Confirm that the unexpected exception is let through.  My most beautiful test, ever!
-        with assert_raises(IndexError):
-            with assert_raises(ZeroDivisionError):
-                x = []
-                x[0] = 2
-
 
 def auto_name_lenses(local_variables):
     """

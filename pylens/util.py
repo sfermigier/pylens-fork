@@ -32,7 +32,7 @@
 #
 import copy
 
-from .debug import *
+from .debug import assert_equal, d, describe_test
 
 
 class Properties(object):
@@ -68,15 +68,6 @@ class Properties(object):
         return str(self.__dict__)
 
     __repr__ = __str__
-
-    @staticmethod
-    def TESTS():
-        d("Testing")
-        properties = Properties(food="cheese")
-        assert properties.food == "cheese"
-        properties.something = [1, 2, 3]
-        assert properties.something == [1, 2, 3]
-        assert properties.nothing == None
 
 
 def get_class_attr(obj, name, default=None):

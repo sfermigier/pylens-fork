@@ -86,38 +86,10 @@ class Rollbackable(object):
         # TODO:   perhaps a dirty-flag scheme???
         return self.__class__ == other.__class__ and self.__dict__ == other.__dict__
 
-    @staticmethod
-    def TESTS():
-        class SomeClass(Rollbackable):
-            def __init__(self, x, y):
-                self.x, self.y = x, y
-
-        o = SomeClass(1, [3, 4])
-        state1 = o._get_state()
-        o.x = 3
-        o.y.append(16)
-        assert o.x == 3
-        assert o.y == [3, 4, 16]
-
-        o._set_state(state1)
-        assert o.x == 1
-        assert o.y == [3, 4]
-
-        # Test value comparision.
-        o1 = SomeClass(1, [3, 4])
-        o2 = SomeClass(1, [3, 4])
-        assert o1 == o2
-        o2.y[1] = 9
-        assert o1 != o2
-        o2.y[1] = 4
-        assert o1 == o2
-
 
 #
 # Utility functions for getting and setting the state of multiple rollbackables.
 #
-
-
 def get_rollbackables_state(*rollbackables, **kargs):
     """Handy function to get the state of multiple rollbackables, conviently ignoring those with value None."""
     # Assume we copy state, unless directed otherwise.
