@@ -36,21 +36,24 @@ whilst allowed us to extend it.
 """
 import inspect
 
-from .containers import ContainerFactory, AbstractContainer, LensObject
+from .containers import AbstractContainer, ContainerFactory, LensObject
+from .debug import IN_DEBUG_MODE, assert_msg, d
 from .exceptions import (
+    EndOfStringException,
+    LensException,
     NoDefaultException,
     NotFullyConsumedException,
     TooFewIterationsException,
 )
-from .item import list_wrapper, enable_meta_data
-from .readers import *
-from .rollback import get_rollbackables_state
-from .settings import *
-from .util import *
+from .item import enable_meta_data, list_wrapper
+from .readers import ConcreteInputReader
+from .rollback import Rollbackable, automatic_rollback, get_rollbackables_state
 
 #########################################################
 # Base Lens
 #########################################################
+from .settings import GlobalSettings
+from .util import Properties, escape_for_display, has_value, range_truncate, truncate
 
 
 class Lens(object):

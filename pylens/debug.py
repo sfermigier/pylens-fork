@@ -41,7 +41,6 @@ except:
     set_indent_function = None
     IN_DEBUG_MODE = False
 
-# from exceptions import *
 
 # More syntacticaly consistant assert function, for displaying explanations
 def assert_msg(condition, msg=None):
