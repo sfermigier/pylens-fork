@@ -33,28 +33,20 @@
 #   Some tests that serve as simple examples
 #
 
-from pylens import get, put
+from pylens import get
 from pylens.base_lenses import And, AnyOf, Group, Literal, Repeat
 from pylens.charsets import alphanums, alphas, nums
-from pylens.containers import SOURCE, Attribute, Container, LensObject
-from pylens.core_lenses import Until
-from pylens.debug import d  # Like print(...)
-from pylens.debug import assert_equal, auto_name_lenses, describe_test
-from pylens.settings import GlobalSettings
+from pylens.containers import SOURCE, Attribute, LensObject
+from pylens.debug import assert_equal, auto_name_lenses
 from pylens.util_lenses import (
-    NL,
     WS,
     BlankLine,
-    HashComment,
     KeyValue,
-    Keyword,
     List,
     NewLine,
     OneOrMore,
-    Optional,
     Whitespace,
     Word,
-    ZeroOrMore,
 )
 
 
