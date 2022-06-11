@@ -1,10 +1,10 @@
 from pylens.base_lenses import AnyOf
-from pylens.charsets import nums, alphas, alphanums
-from pylens.debug import describe_test, assert_equal, assert_raises
+from pylens.charsets import alphanums, alphas, nums
+from pylens.debug import assert_equal, assert_raises, describe_test
 from pylens.exceptions import LensException
 from pylens.readers import ConcreteInputReader
 from pylens.settings import GlobalSettings
-from pylens.util_lenses import OneOrMore, Optional, List, NewLine, Word, Whitespace
+from pylens.util_lenses import List, NewLine, OneOrMore, Optional, Whitespace, Word
 
 
 def d(*args):

@@ -32,6 +32,8 @@
 #
 
 from .containers import *
+from .exceptions import EndOfStringException
+from .util import truncate
 
 
 class ConcreteInputReader(Rollbackable):
@@ -78,6 +80,7 @@ class ConcreteInputReader(Rollbackable):
         """
         if self.position + length > len(self.string):
             raise EndOfStringException()
+
         start = self.position
         self.position += length
         return self.string[start : self.position]
@@ -88,6 +91,7 @@ class ConcreteInputReader(Rollbackable):
         """
         if self.is_fully_consumed():
             raise EndOfStringException()
+
         char = self.string[self.position]
         self.position += 1
         return char

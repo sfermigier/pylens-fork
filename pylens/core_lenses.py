@@ -31,6 +31,7 @@
 import sys
 
 from .base_lenses import *
+from .rollback import set_rollbackables_state
 
 
 class Forward(Lens):

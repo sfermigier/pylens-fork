@@ -32,18 +32,30 @@
 # Description:
 #  Consumable containers for abstract storage of model items.
 #
+import copy
 import re
 
-from .item import *
-from .rollback import *
-
 # Item alignment modes for containers.
+from pylens.debug import assert_msg
+from pylens.exceptions import LensException, NoTokenToConsumeException
+from pylens.item import enable_meta_data
+from pylens.rollback import Rollbackable, automatic_rollback
+from pylens.util import Properties, get_instance_attr, has_value
+
+# from .item import *
+# from .rollback import *
+
+
 SOURCE = "SOURCE"
 MODEL = "MODEL"
 LABEL = "LABEL"
 
 # Just used to simplify sorting.
 LARGE_INTEGER = 0xFFFFFFFF
+
+
+def d(*args):
+    print(args)
 
 
 class AbstractContainer(Rollbackable):
