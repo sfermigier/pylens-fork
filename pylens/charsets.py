@@ -31,7 +31,7 @@
 import string
 
 # Some useful character sets.
-alphas    = string.ascii_lowercase + string.ascii_uppercase
-nums      = string.digits
-hexnums   = nums + "ABCDEFabcdef"
+alphas = string.ascii_lowercase + string.ascii_uppercase
+nums = string.digits
+hexnums = nums + "ABCDEFabcdef"
 alphanums = alphas + nums

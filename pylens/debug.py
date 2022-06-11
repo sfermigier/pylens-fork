@@ -34,100 +34,105 @@
 #
 
 # Optionally include nbdebug functions.
-try :
-  from nbdebug import d, breakpoint, set_indent_function, IN_DEBUG_MODE
-except :
-  d = lambda x: None
-  set_indent_function = None
-  IN_DEBUG_MODE = False
+try:
+    from nbdebug import d, breakpoint, set_indent_function, IN_DEBUG_MODE
+except:
+    d = lambda x: None
+    set_indent_function = None
+    IN_DEBUG_MODE = False
 
 # from exceptions import *
 
 # More syntacticaly consistant assert function, for displaying explanations
-def assert_msg(condition, msg=None) :
-  assert condition, (msg or "")
+def assert_msg(condition, msg=None):
+    assert condition, msg or ""
 
-def describe_test(msg) :
-  """A debug message that will stand out."""
-  msg = "========= " + msg + " ========="
-  return d(msg)
 
-def assert_equal(got, expected) :
-  assert_msg(got == expected, "Expected >>>%s<<< but got >>>%s<<<" % (expected, got))
+def describe_test(msg):
+    """A debug message that will stand out."""
+    msg = "========= " + msg + " ========="
+    return d(msg)
+
+
+def assert_equal(got, expected):
+    assert_msg(got == expected, "Expected >>>%s<<< but got >>>%s<<<" % (expected, got))
+
 
 class assert_raises:
-  """A cleaner way to assert that an exception is thrown from some code."""
+    """A cleaner way to assert that an exception is thrown from some code."""
 
-  def __init__(self, exception_class) :
-    self.exception_class = exception_class
+    def __init__(self, exception_class):
+        self.exception_class = exception_class
 
-  def __enter__(self) :
-    pass
+    def __enter__(self):
+        pass
 
-  def __exit__(self, type, exception, traceback) :
-    if not exception :
-      raise Exception("Expected to see exception: %s" % self.exception_class)
+    def __exit__(self, type, exception, traceback):
+        if not exception:
+            raise Exception("Expected to see exception: %s" % self.exception_class)
 
-    # Returning True means 'suppress exception', which we do if the exception is
-    # of the type we expected.
-    return isinstance(exception, self.exception_class)
+        # Returning True means 'suppress exception', which we do if the exception is
+        # of the type we expected.
+        return isinstance(exception, self.exception_class)
 
-  @staticmethod
-  def TESTS() :
-    d("Testing")
+    @staticmethod
+    def TESTS():
+        d("Testing")
 
-    # Assert the ZeroDivisionError is thrown.
-    with assert_raises(ZeroDivisionError) :
-      x = 1 / 0
+        # Assert the ZeroDivisionError is thrown.
+        with assert_raises(ZeroDivisionError):
+            x = 1 / 0
 
-    # Assert that we expected the ZeroDivisionError to be thrown.
-    with assert_raises(Exception) :
-      with assert_raises(ZeroDivisionError) :
-        x = 1 / 1
+        # Assert that we expected the ZeroDivisionError to be thrown.
+        with assert_raises(Exception):
+            with assert_raises(ZeroDivisionError):
+                x = 1 / 1
 
-    # Confirm that the unexpected exception is let through.  My most beautiful test, ever!
-    with assert_raises(IndexError) :
-      with assert_raises(ZeroDivisionError) :
-        x = []
-        x[0] = 2
+        # Confirm that the unexpected exception is let through.  My most beautiful test, ever!
+        with assert_raises(IndexError):
+            with assert_raises(ZeroDivisionError):
+                x = []
+                x[0] = 2
 
-def auto_name_lenses(local_variables) :
-  """
-  Gives names to lenses based on their local variable names, which is
-  useful for tracing parsing. Should be called with globals()/locals()
-  """
-  from pylens.base_lenses import Lens
-  for variable_name, obj in local_variables.items() :
-    if isinstance(obj, Lens) :
-      obj.name = variable_name
+
+def auto_name_lenses(local_variables):
+    """
+    Gives names to lenses based on their local variable names, which is
+    useful for tracing parsing. Should be called with globals()/locals()
+    """
+    from pylens.base_lenses import Lens
+
+    for variable_name, obj in local_variables.items():
+        if isinstance(obj, Lens):
+            obj.name = variable_name
 
 
 # Set an debug message indentation function if the debug library is in use.
-if set_indent_function :
+if set_indent_function:
 
-  def debug_indent_function() :
-    """
-    Nicely indents the debug messages according to the hierarchy of lenses.
-    """
-    import inspect
-    # Create a list of all function names in the trace.
-    function_names = []
+    def debug_indent_function():
+        """
+        Nicely indents the debug messages according to the hierarchy of lenses.
+        """
+        import inspect
 
-    # Prepend the callers location to the message.
-    callerFrame = inspect.currentframe()
-    while callerFrame :
-      location = callerFrame.f_code.co_name
-      function_names.append(location)
-      callerFrame = callerFrame.f_back
+        # Create a list of all function names in the trace.
+        function_names = []
 
-    indent = 0
-    # Includes 'get' and 'put' since get may be called directly in put (not _put), etc.
-    for name in ["_put", "_get", "put", "get"] :
-      indent += function_names.count(name)
-    indent -= 1
-    indent = max(0, indent)
+        # Prepend the callers location to the message.
+        callerFrame = inspect.currentframe()
+        while callerFrame:
+            location = callerFrame.f_code.co_name
+            function_names.append(location)
+            callerFrame = callerFrame.f_back
 
-    return " "*indent
+        indent = 0
+        # Includes 'get' and 'put' since get may be called directly in put (not _put), etc.
+        for name in ["_put", "_get", "put", "get"]:
+            indent += function_names.count(name)
+        indent -= 1
+        indent = max(0, indent)
 
-  set_indent_function(debug_indent_function)
+        return " " * indent
 
+    set_indent_function(debug_indent_function)

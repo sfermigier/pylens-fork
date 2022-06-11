@@ -35,119 +35,115 @@ from .containers import *
 
 
 class ConcreteInputReader(Rollbackable):
-  """Stateful reader of the concrete input string."""
+    """Stateful reader of the concrete input string."""
 
-  def __init__(self, input_string):
+    def __init__(self, input_string):
 
-    # If input_string is in fact a ConcreteInputReader, copy its state.
-    if isinstance(input_string, self.__class__) :
-      self.position = input_string.position
-      self.string = input_string.string
-    # Otherwise, initialise our state.
-    else :
-      assert(isinstance(input_string, str))
-      self.position  = 0
-      self.string    = input_string
+        # If input_string is in fact a ConcreteInputReader, copy its state.
+        if isinstance(input_string, self.__class__):
+            self.position = input_string.position
+            self.string = input_string.string
+        # Otherwise, initialise our state.
+        else:
+            assert isinstance(input_string, str)
+            self.position = 0
+            self.string = input_string
 
-  def reset(self) :
-    self.set_pos(0)
+    def reset(self):
+        self.set_pos(0)
 
-  def _get_state(self, copy_state=True) :
-    return self.get_pos()
+    def _get_state(self, copy_state=True):
+        return self.get_pos()
 
-  def _set_state(self, state, copy_state=True) :
-    self.set_pos(state)
+    def _set_state(self, state, copy_state=True):
+        self.set_pos(state)
 
-  def get_consumed_string(self, start_pos=0) :
-    return self.string[start_pos:self.position]
+    def get_consumed_string(self, start_pos=0):
+        return self.string[start_pos : self.position]
 
-  def get_pos(self):
-    return self.position
+    def get_pos(self):
+        return self.position
 
-  def set_pos(self, pos) :
-    assert(isinstance(pos, int))
-    self.position = pos
+    def set_pos(self, pos):
+        assert isinstance(pos, int)
+        self.position = pos
 
-  def get_remaining(self) :
-    """Return the text that remains to be parsed - useful for debugging."""
-    return self.string[self.position:]
+    def get_remaining(self):
+        """Return the text that remains to be parsed - useful for debugging."""
+        return self.string[self.position :]
 
-  def consume_string(self,length):
-    """
-    Consume a string of specified length from the input.
-    """
-    if self.position+length > len(self.string):
-      raise EndOfStringException()
-    start = self.position
-    self.position += length
-    return self.string[start:self.position]
+    def consume_string(self, length):
+        """
+        Consume a string of specified length from the input.
+        """
+        if self.position + length > len(self.string):
+            raise EndOfStringException()
+        start = self.position
+        self.position += length
+        return self.string[start : self.position]
 
+    def consume_char(self):
+        """
+        Consume and return the next char from input.
+        """
+        if self.is_fully_consumed():
+            raise EndOfStringException()
+        char = self.string[self.position]
+        self.position += 1
+        return char
 
-  def consume_char(self):
-    """
-    Consume and return the next char from input.
-    """
-    if self.is_fully_consumed():
-      raise EndOfStringException()
-    char = self.string[self.position]
-    self.position += 1
-    return char
+    def is_fully_consumed(self):
+        """
+        Return whether the string is fully consumed
+        """
+        return self.position >= len(self.string)
 
+    def is_aligned_with(self, other):
+        """Check if this reader is aligned with another."""
+        return self.position == other.position and self.string == other.string
 
-  def is_fully_consumed(self):
-    """
-    Return whether the string is fully consumed
-    """
-    return self.position >= len(self.string)
+    def __str__(self):
+        # Return a string representation of this reader, to help debugging.
+        if self.is_fully_consumed():
+            return "END_OF_STRING"
 
+        display_string = self.string[self.position :]
+        return "'" + truncate(display_string) + "'"
 
-  def is_aligned_with(self, other) :
-    """Check if this reader is aligned with another."""
-    return self.position == other.position and self.string == other.string
+    __repr__ = __str__
 
-  def __str__(self) :
-    # Return a string representation of this reader, to help debugging.
-    if self.is_fully_consumed() :
-      return "END_OF_STRING"
+    @staticmethod
+    def TESTS():
+        concrete_reader = ConcreteInputReader("ABCD")
+        output = ""
+        for i in range(0, 2):
+            output += concrete_reader.consume_char()
+        assert not concrete_reader.is_fully_consumed()
+        assert concrete_reader.get_remaining() == "CD"
+        assert concrete_reader.get_consumed_string(0) == "AB"
 
-    display_string = self.string[self.position:]
-    return "'" + truncate(display_string) + "'"
-  __repr__ = __str__
+        for i in range(0, 2):
+            output += concrete_reader.consume_char()
+        assert output == "ABCD"
+        assert concrete_reader.is_fully_consumed()
 
-  @staticmethod
-  def TESTS() :
-    concrete_reader = ConcreteInputReader("ABCD")
-    output = ""
-    for i in range(0,2) :
-      output += concrete_reader.consume_char()
-    assert not concrete_reader.is_fully_consumed()
-    assert concrete_reader.get_remaining() == "CD"
-    assert concrete_reader.get_consumed_string(0) == "AB"
+        concrete_reader = ConcreteInputReader("ABCD")
 
-    for i in range(0,2) :
-      output += concrete_reader.consume_char()
-    assert output == "ABCD"
-    assert concrete_reader.is_fully_consumed()
+        # Now test with rollback.
+        concrete_reader = ConcreteInputReader("ABCD")
+        try:
+            with automatic_rollback(concrete_reader):
+                concrete_reader.consume_char()
+                assert concrete_reader.get_remaining() == "BCD"
+                raise LensException()
+        except LensException:
+            pass  # Don't want to stop tests.
 
-    concrete_reader = ConcreteInputReader("ABCD")
+        assert concrete_reader.get_remaining() == "ABCD"
 
-    # Now test with rollback.
-    concrete_reader = ConcreteInputReader("ABCD")
-    try :
-      with automatic_rollback(concrete_reader):
-        concrete_reader.consume_char()
-        assert concrete_reader.get_remaining() == "BCD"
-        raise LensException()
-    except LensException:
-      pass # Don't want to stop tests.
-
-    assert concrete_reader.get_remaining() == "ABCD"
-
-    # Test that clones share the string object, for efficiency.
-    cloned_reader = ConcreteInputReader(concrete_reader)
-    assert(cloned_reader.string is concrete_reader.string)
-    assert(cloned_reader.is_aligned_with(concrete_reader))
-    cloned_reader.position += 1
-    assert(not cloned_reader.is_aligned_with(concrete_reader))
-
-
+        # Test that clones share the string object, for efficiency.
+        cloned_reader = ConcreteInputReader(concrete_reader)
+        assert cloned_reader.string is concrete_reader.string
+        assert cloned_reader.is_aligned_with(concrete_reader)
+        cloned_reader.position += 1
+        assert not cloned_reader.is_aligned_with(concrete_reader)
