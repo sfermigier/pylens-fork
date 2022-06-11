@@ -54,7 +54,7 @@ def describe_test(msg):
 
 
 def assert_equal(got, expected):
-    assert_msg(got == expected, "Expected >>>%s<<< but got >>>%s<<<" % (expected, got))
+    assert_msg(got == expected, f"Expected >>>{expected}<<< but got >>>{got}<<<")
 
 
 class assert_raises:

@@ -35,7 +35,7 @@ import copy
 from .debug import assert_equal, d, describe_test
 
 
-class Properties(object):
+class Properties:
     """
     A useful class for holding properties (e.g. meta data or lens options), which
     uses __getattr__ to save us from always asking if it has a particular attribute.

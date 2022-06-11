@@ -56,7 +56,7 @@ from .settings import GlobalSettings
 from .util import Properties, escape_for_display, has_value, range_truncate, truncate
 
 
-class Lens(object):
+class Lens:
     """Base lens, which all other lenses extend."""
 
     def __init__(self, type=None, name=None, default=None, **options):
@@ -212,7 +212,7 @@ class Lens(object):
 
             # A reference to the lens that extracted the item.
             item._meta_data.lens = self
-            d("Set meta on %s to %s" % (item, item._meta_data))
+            d(f"Set meta on {item} to {item._meta_data}")
 
             # A reference to the concrete reader and position parsed from.
             item._meta_data.concrete_start_position = concrete_start_position
@@ -818,7 +818,7 @@ class Lens(object):
     # String representation.
     def __str__(self):
         # Bolt on the class name, to ease debugging.
-        return "%s(%s)" % (self.__class__.__name__, self._display_id())
+        return f"{self.__class__.__name__}({self._display_id()})"
 
     __repr__ = __str__
 
@@ -839,7 +839,7 @@ class And(Lens):
 
         # Must always remember to invoke the parent lens, so it can initialise
         # common arguments.
-        super(And, self).__init__(**options)
+        super().__init__(**options)
 
         # Flatten sub-lenses that are also Ands, so we don't have too much nesting,
         # which makes debugging lenses a nightmare.
@@ -884,7 +884,7 @@ class Or(Lens):
     """
 
     def __init__(self, *lenses, **options):
-        super(Or, self).__init__(**options)
+        super().__init__(**options)
 
         # Flatten sub-lenses that are also Ors, so we don't have too much nesting, which makes debugging lenses a nightmare.
         for lens in lenses:
@@ -994,7 +994,7 @@ class AnyOf(Lens):
     """
 
     def __init__(self, valid_chars, negate=False, **options):
-        super(AnyOf, self).__init__(**options)
+        super().__init__(**options)
         self.valid_chars, self.negate = valid_chars, negate
 
     def _get(self, concrete_input_reader, current_container):
@@ -1048,7 +1048,7 @@ class AnyOf(Lens):
 
         if not (isinstance(item, str) and len(item) == 1 and self._is_valid_char(item)):
             raise LensException(
-                "Invalid item '%s', expected %s." % (item, self._display_id())
+                f"Invalid item '{item}', expected {self._display_id()}."
             )
         return item
 
@@ -1081,7 +1081,7 @@ class Repeat(Lens):
           min_count - the min repetitions
           max_count - maximum repetitions (must be > 0 if set)
         """
-        super(Repeat, self).__init__(**options)
+        super().__init__(**options)
         assert min_count >= 0
         if has_value(max_count):
             assert max_count > min_count
@@ -1273,7 +1273,7 @@ class Empty(Lens):
     END_OF_TEXT = "END_OF_TEXT"
 
     def __init__(self, mode=None, **options):
-        super(Empty, self).__init__(**options)
+        super().__init__(**options)
         self.default = ""
         self.mode = mode
 
@@ -1323,7 +1323,7 @@ class Group(Lens):
     """
 
     def __init__(self, lens, **options):
-        super(Group, self).__init__(**options)
+        super().__init__(**options)
         assert_msg(
             self.has_type(), "To be meaningful, you must set a type on %s" % self
         )
@@ -1348,7 +1348,7 @@ class Literal(Lens):
 
     def __init__(self, literal_string, **options):
         assert isinstance(literal_string, str) and len(literal_string) > 0
-        super(Literal, self).__init__(**options)
+        super().__init__(**options)
         self.literal_string = literal_string
         if not self.has_type():
             self.default = self.literal_string
@@ -1412,7 +1412,7 @@ class Literal(Lens):
             self.get(concrete_input_reader)
 
         if item != self.literal_string:
-            raise LensException("%s can not PUT %s." % (self, item))
+            raise LensException(f"{self} can not PUT {item}.")
 
         return item
 

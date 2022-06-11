@@ -40,7 +40,7 @@ class OneOrMore(Repeat):
         if "min_count" not in options:
             options["min_count"] = 1
         # Mental note: Don't accidentally write something like super(Repeat...
-        super(OneOrMore, self).__init__(*args, **options)
+        super().__init__(*args, **options)
 
 
 OM = OneOrMore
@@ -50,7 +50,7 @@ class ZeroOrMore(Repeat):
     def __init__(self, *args, **options):
         if "min_count" not in options:
             options["min_count"] = 0
-        super(ZeroOrMore, self).__init__(*args, **options)
+        super().__init__(*args, **options)
 
 
 ZM = ZeroOrMore
@@ -58,7 +58,7 @@ ZM = ZeroOrMore
 
 class Optional(Or):
     def __init__(self, lens, **options):
-        super(Optional, self).__init__(lens, Empty(), **options)
+        super().__init__(lens, Empty(), **options)
 
 
 O = Optional
@@ -68,16 +68,14 @@ class List(And):
     """Shortcut lens for delimited lists."""
 
     def __init__(self, lens, delimiter_lens, **options):
-        super(List, self).__init__(
-            lens, ZeroOrMore(And(delimiter_lens, lens)), **options
-        )
+        super().__init__(lens, ZeroOrMore(And(delimiter_lens, lens)), **options)
 
 
 class NewLine(Or):
     """Matches a newline char or the end of text, so extends the Or lens."""
 
     def __init__(self, **options):
-        super(NewLine, self).__init__("\n", Empty(mode=Empty.END_OF_TEXT), **options)
+        super().__init__("\n", Empty(mode=Empty.END_OF_TEXT), **options)
 
     # TODO: Ensure it puts a \n regardless of being at end of file, to allow
     # appending. Could hook put
@@ -126,7 +124,7 @@ class Word(And):
             max_count=max_count and max_count - 1 or None,
         )
 
-        super(Word, self).__init__(left_lens, right_lens, **options)
+        super().__init__(left_lens, right_lens, **options)
 
 
 class Whitespace(Or):
@@ -179,7 +177,7 @@ class Whitespace(Or):
 
         # Set up options for Or.
         options["default"] = default
-        super(Whitespace, self).__init__(*or_lenses, **options)
+        super().__init__(*or_lenses, **options)
 
 
 WS = Whitespace  # Abreviation.
@@ -215,7 +213,7 @@ class KeyValue(Group):
             options["type"] = list
         if "auto_list" not in options:
             options["auto_list"] = True
-        super(KeyValue, self).__init__(*args, **options)
+        super().__init__(*args, **options)
 
 
 class BlankLine(And):
@@ -224,7 +222,7 @@ class BlankLine(And):
     """
 
     def __init__(self, **options):
-        super(BlankLine, self).__init__(WS(""), NewLine(), **options)
+        super().__init__(WS(""), NewLine(), **options)
 
 
 class Keyword(Word):
@@ -233,7 +231,7 @@ class Keyword(Word):
     """
 
     def __init__(self, additional_chars="_", **options):
-        super(Keyword, self).__init__(
+        super().__init__(
             alphanums + additional_chars,
             init_chars=alphas + additional_chars,
             **options
@@ -262,4 +260,4 @@ class HashComment(And):
     """A common hash comment."""
 
     def __init__(self, **options):
-        super(HashComment, self).__init__("#", Until(NewLine()), NewLine(), **options)
+        super().__init__("#", Until(NewLine()), NewLine(), **options)

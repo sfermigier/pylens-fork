@@ -51,7 +51,7 @@ class Forward(Lens):
     """
 
     def __init__(self, recursion_limit=100, **options):
-        super(Forward, self).__init__(**options)
+        super().__init__(**options)
         d("Creating")
         self.recursion_limit = recursion_limit
 
@@ -102,7 +102,7 @@ class Until(Lens):
         Arguments:
           include_lens - Set to true if the specified lens should also be consumed.
         """
-        super(Until, self).__init__(**options)
+        super().__init__(**options)
         self.set_sublens(lens)
         self.include_lens = include_lens
 

@@ -70,7 +70,7 @@ class AbstractContainer(Rollbackable):
     """
 
     def __new__(cls, *args, **kargs):
-        self = super(AbstractContainer, cls).__new__(cls)
+        self = super().__new__(cls)
         # Initialise some vars regardless of __init__ being called.
         self._container_lens = None
         self._label = None
@@ -250,7 +250,7 @@ class ListContainer(AbstractContainer):
     """Most basic container, for storing items in a list."""
 
     def __new__(cls, *args, **kargs):
-        self = super(ListContainer, cls).__new__(cls)
+        self = super().__new__(cls)
         self.container_item = []
         return self
 
@@ -324,18 +324,18 @@ class DictContainer(ListContainer):
             item._meta_data.label = key
             items_as_list.append(item)
 
-        super(DictContainer, self).__init__(items_as_list)
+        super().__init__(items_as_list)
 
     # TODO: Choose default alignment mode in set_container_lens().
 
     def store_item(self, item, *args, **kargs):
         if not has_value(item._meta_data.label):
-            raise LensException("%s expected item %s to have a label." % (self, item))
-        super(DictContainer, self).store_item(item, *args, **kargs)
+            raise LensException(f"{self} expected item {item} to have a label.")
+        super().store_item(item, *args, **kargs)
 
     def unwrap(self):
         # First unwrap to a list.
-        items_as_list = super(DictContainer, self).unwrap()
+        items_as_list = super().unwrap()
 
         # Then convert to a dictionary, using item labels as keys.
         items_as_dict = {}
@@ -363,7 +363,7 @@ class Attribute(Properties):
     counter = 0
 
     def __init__(self, *args, **kargs):
-        super(Attribute, self).__init__(*args, **kargs)
+        super().__init__(*args, **kargs)
         self._counter = self.__class__.counter
         self.__class__.counter += 1
 
@@ -396,7 +396,7 @@ class LensObject(AbstractContainer):
         (a la serialisation), so here we initialise important internal variables before the
         __init__ is called.
         """
-        self = super(LensObject, cls).__new__(cls, *args, **kargs)
+        self = super().__new__(cls, *args, **kargs)
 
         # If sub-containers have been specified on the class, instantiate them on the instance.
         self._create_containers_and_attributes()
@@ -415,11 +415,11 @@ class LensObject(AbstractContainer):
         # First see if the item is to be stored in one of our containers.
         sub_container = self._get_item_sub_container(lens, item)
         if sub_container:
-            d("Storing %s in container %s" % (item, sub_container))
+            d(f"Storing {item} in container {sub_container}")
             return sub_container.store_item(item, lens, concrete_input_reader)
 
         if not has_value(item._meta_data.label):
-            raise LensException("%s expected item %s to have a label." % (self, item))
+            raise LensException(f"{self} expected item {item} to have a label.")
         # TODO: If constrained attributes, check within set.
         setattr(self, self.map_label_to_identifier(item._meta_data.label), item)
 
@@ -438,7 +438,7 @@ class LensObject(AbstractContainer):
 
     def set_container_lens(self, lens):
         # TODO: Shall we call on sub containers - perhaps not, since can set alignment from props
-        super(LensObject, self).set_container_lens(lens)
+        super().set_container_lens(lens)
         # For a general class container, SOURCE alignment will be a more common default.
         # Maybe LABEL mode would be more suitable when I implement it.
         self._alignment_mode = self._container_lens.options.alignment or SOURCE
@@ -470,7 +470,7 @@ class LensObject(AbstractContainer):
         # First see if the item is to be put from one of our containers.
         sub_container = self._get_item_sub_container(lens, item)
         if sub_container:
-            d("Removing %s from %s" % (item, sub_container))
+            d(f"Removing {item} from {sub_container}")
             sub_container.remove_item(lens, item)
             return
 
@@ -480,7 +480,7 @@ class LensObject(AbstractContainer):
                 del self.__dict__[attr_name]
                 return
 
-        raise Exception("Failed to remove item %s from %s." % (item, self))
+        raise Exception(f"Failed to remove item {item} from {self}.")
 
     def prepare_for_put(self):
         """Here we ensure any raw containers are wrapped as AbstractContainers - the opposite of unwrap()."""

@@ -49,7 +49,7 @@ class LensException(RollbackException):
     def __init__(self, msg=None):
         self.__msg = msg
         if IN_DEBUG_MODE:
-            d("Throwing: %s (from %s)" % (self.__msg, self.get_thrown_from()))
+            d(f"Throwing: {self.__msg} (from {self.get_thrown_from()})")
 
     def get_thrown_from(self):
 

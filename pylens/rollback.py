@@ -39,7 +39,7 @@ from pylens.debug import d
 from pylens.exceptions import LensException, RollbackException
 
 
-class Rollbackable(object):
+class Rollbackable:
     """
     A class that can have its state rolled back, to undo modifications.
     A blanket deepcopy is not ideal, though we can explore more efficient
