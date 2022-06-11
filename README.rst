@@ -1,7 +1,10 @@
 Pylens - Object Serialisation through a Lens
 ====================================================
 
-Author: Nick Blundell (http://www.nickblundell.org.uk)
+Original author: Nick Blundell (http://www.nickblundell.org.uk)
+
+Refactored to run under Python 3.8+
+
 
 .. TOC
 
