@@ -37,12 +37,8 @@ from pylens.base_lenses import Group, Literal, Repeat
 from pylens.charsets import alphanums, alphas
 from pylens.containers import SOURCE, Container, LensObject
 from pylens.core_lenses import Until
-from pylens.debug import (
-    assert_equal,
-    auto_name_lenses,
-    d,  # Like print(...)
-    describe_test,
-)
+from pylens.debug import d  # Like print(...)
+from pylens.debug import assert_equal, auto_name_lenses, describe_test
 from pylens.settings import GlobalSettings
 from pylens.util_lenses import (
     NL,

@@ -496,7 +496,7 @@ def test_init():
     #  Want to create an object with initial state regardless of constructor
     #  args.
 
-    class Person(object):
+    class Person:
 
         age = 10
 
@@ -507,7 +507,7 @@ def test_init():
 
             # Create the instance, also passing args - since may also be used for
             # customisation.
-            self = super(Person, cls).__new__(cls)
+            self = super().__new__(cls)
             # Initialise some variables.
             self.name = None
             self.surname = None
@@ -521,7 +521,7 @@ def test_init():
             self.name, self.surname = name, surname
 
         def __str__(self):
-            return "[%s, %s]" % (self.name, self.surname)
+            return f"[{self.name}, {self.surname}]"
 
     person = Person("john", "smith")
     assert person.name == "john" and person.surname == "smith"
