@@ -32,7 +32,7 @@
 # Description:
 #
 #
-from .debug import *
+from .debug import IN_DEBUG_MODE, d
 
 
 # Thrown when tentative object state should be rolled back.
