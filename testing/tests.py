@@ -34,11 +34,10 @@
 #  testing.  Some of these are based on tricky config file examples given in the Augeas system
 #  Note that these lenses may not be completely accurate but are an aid to testing.
 #
-
-from pylens import *
+from pylens import get, put
 from pylens.base_lenses import Repeat, AnyOf, Group
 from pylens.charsets import nums, alphas
-from pylens.containers import SOURCE, MODEL, Container
+from pylens.containers import SOURCE, MODEL, Container, LensObject
 from pylens.core_lenses import Until
 from pylens.debug import assert_raises, assert_equal, describe_test
 from pylens.exceptions import NoTokenToConsumeException, NotFullyConsumedException
@@ -287,16 +286,16 @@ def test_lens_object():
         def __init__(self, name, last_name):
             self.name, self.last_name = name, last_name
 
-    describe_test("GET")
     # Here we use the high-level API get() function, which is for convenience and
     # which equates to:
     #  lens = Group(Person.__lens__, type=Person)
     #  person = lens.get("Person::Name:nick;Last   Name:blundell")
+    describe_test("GET")
     person = get(Person, "Person::Name:nick;Last   Name:blundell")
     assert person.name == "nick" and person.last_name == "blundell"
-    describe_test("PUT")
 
     # Now we PUT it back with no modification and should get what we started with.
+    describe_test("PUT")
     output = put(person)
     assert_equal(output, "Person::Name:nick;Last   Name:blundell")
     # And we do this again to check the consumed state of person was restored

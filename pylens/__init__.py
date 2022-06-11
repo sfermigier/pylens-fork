@@ -91,6 +91,7 @@ def put(lens_or_instance, *args, **kargs):
     # wrapped in am appropriately typed group, so only do this here.
     if not lens.has_type():
         lens = AutoGroup(lens)
+
     return lens.put(*args, **kargs)
 
 
