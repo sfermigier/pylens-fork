@@ -149,12 +149,7 @@ class Lens:
         concrete_input_reader = self._normalise_concrete_input(concrete_input)
 
         if IN_DEBUG_MODE:
-            d(
-                "Initial state: in={concrete_input_reader}, cont={current_container}".format(
-                    concrete_input_reader=concrete_input_reader,
-                    current_container=current_container,
-                )
-            )
+            d(f"Initial state: in={concrete_input_reader}, cont={current_container}")
 
         # Remember the start position of the concrete reader, to aid
         # re-alignment of concrete structures when we Lens.put is later called.
@@ -357,7 +352,7 @@ class Lens:
 
             # It's very useful to see if an item holds a label in its meta.
             if hasattr(item, "_meta_data") and has_value(item._meta_data.label):
-                item_label_string = " [label: %s]" % item._meta_data.label
+                item_label_string = f" [label: {item._meta_data.label}]"
             else:
                 item_label_string = ""
 
@@ -511,7 +506,7 @@ class Lens:
         # Report what we PUT.
         if IN_DEBUG_MODE:
             if has_value(output):
-                d("PUT: '%s'" % output)
+                d(f"PUT: '{output}'")
             else:
                 d("PUT: NOTHING")
 
@@ -610,7 +605,7 @@ class Lens:
 
         assert_msg(
             isinstance(concrete_input, ConcreteInputReader),
-            "Expected to have a ConcreteInputReader not a %s" % type(concrete_input),
+            f"Expected to have a ConcreteInputReader not a {type(concrete_input)}",
         )
         return concrete_input
 
@@ -636,7 +631,7 @@ class Lens:
         elif inspect.isclass(lens_operand) and issubclass(lens_operand, LensObject):
             assert_msg(
                 hasattr(lens_operand, "__lens__"),
-                "LensObject %s defines no __lens__ variable" % lens_operand,
+                f"LensObject {lens_operand} defines no __lens__ variable",
             )
             # Note, we also coerce __lens__ to a lens, just for completeness (e.g. if
             # lens was simply a string, it would be coerced to a Literal lens.
@@ -646,7 +641,7 @@ class Lens:
 
         assert_msg(
             isinstance(lens_operand, Lens),
-            "Unable to coerce %s to a lens" % lens_operand,
+            f"Unable to coerce {lens_operand} to a lens",
         )
         return lens_operand
 
@@ -1007,12 +1002,11 @@ class AnyOf(Lens):
             char = concrete_input_reader.consume_char()
             if not self._is_valid_char(char):
                 raise LensException(
-                    "Expected char %s but got '%s'"
-                    % (self._display_id(), truncate(char))
+                    f"Expected char {self._display_id()} but got '{truncate(char)}'"
                 )
         except EndOfStringException:
             raise LensException(
-                "Expected char %s but at end of string" % (self._display_id())
+                f"Expected char {self._display_id()} but at end of string"
             )
 
         if self.has_type():
@@ -1064,9 +1058,9 @@ class AnyOf(Lens):
         if self.name:
             return self.name
         if self.negate:
-            return "not in [%s]" % range_truncate(self.valid_chars)
+            return f"not in [{range_truncate(self.valid_chars)}]"
         else:
-            return "in [%s]" % range_truncate(self.valid_chars)
+            return f"in [{range_truncate(self.valid_chars)}]"
 
 
 class Repeat(Lens):
@@ -1324,9 +1318,7 @@ class Group(Lens):
 
     def __init__(self, lens, **options):
         super().__init__(**options)
-        assert_msg(
-            self.has_type(), "To be meaningful, you must set a type on %s" % self
-        )
+        assert_msg(self.has_type(), f"To be meaningful, you must set a type on {self}")
         self.extend_sublenses([lens])
 
     def _get(self, concrete_input_reader, current_container):
@@ -1392,7 +1384,7 @@ class Literal(Lens):
             # We should not have been passed an item.
             assert_msg(
                 not has_value(item),
-                "%s did not expected to be passed an item - is a non-store lens" % self,
+                f"{self} did not expected to be passed an item - is a non-store lens",
             )
             if has_value(concrete_input_reader):
                 concrete_start_position = concrete_input_reader.get_pos()
@@ -1421,4 +1413,4 @@ class Literal(Lens):
         # Name is only set after Lens constructor called.
         if hasattr(self, "name") and has_value(self.name):
             return self.name
-        return "'%s'" % escape_for_display(self.literal_string)
+        return f"'{escape_for_display(self.literal_string)}'"

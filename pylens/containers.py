@@ -94,9 +94,7 @@ class AbstractContainer(Rollbackable):
                 "The container label must be a string --- at least for the time being.",
             )
             if label and self._label:
-                raise Exception(
-                    "Container already has a label defined: %s" % self._label
-                )
+                raise Exception(f"Container already has a label defined: {self._label}")
         self._label = label
 
     def get_label(self):
@@ -140,7 +138,7 @@ class AbstractContainer(Rollbackable):
         # Get candidates to PUT
         candidates = self.get_put_candidates(lens, concrete_input_reader)
 
-        d("Unfiltered candidates: %s" % candidates)
+        d(f"Unfiltered candidates: {candidates}")
 
         # Filter and sort them appropriately for our context (e.g. the lens, the
         # alignment mode and the current input postion.
@@ -148,7 +146,7 @@ class AbstractContainer(Rollbackable):
             candidates, lens, concrete_input_reader
         )
 
-        d("Filtered candidates: %s" % candidates)
+        d(f"Filtered candidates: {candidates}")
 
         for candidate in candidates:
             try:
@@ -177,7 +175,7 @@ class AbstractContainer(Rollbackable):
         # straightforward - here, for flexibility, we assume several items may share
         # a static label.
         if has_value(lens.options.label):
-            d("Using static label: '%s'" % lens.options.label)
+            d(f"Using static label: '{lens.options.label}'")
             # XXX: Feels a bit of a hack to use attr_label, so will think more
             # generally about this.
             valid_candidates = [
@@ -211,7 +209,7 @@ class AbstractContainer(Rollbackable):
             return sorted_candidate_items
         # TODO: LABEL alignment mode
 
-        raise Exception("Unknown alignment mode: %s" % self._alignment_mode)
+        raise Exception(f"Unknown alignment mode: {self._alignment_mode}")
 
     #
     # Must overload these.
@@ -447,11 +445,11 @@ class LensObject(AbstractContainer):
         # First see if the item is to be put from one of our containers.
         sub_container = self._get_item_sub_container(lens)
         if sub_container:
-            d("Using sub container %s" % sub_container)
+            d(f"Using sub container {sub_container}")
             return sub_container.get_put_candidates(lens, concrete_input_reader)
 
         # Now try to find our own candidates.
-        d("Looking for own canidates. %s" % self.__dict__)
+        d(f"Looking for own canidates. {self.__dict__}")
         candidates = []
 
         # Append all of our data attributes that are not None.
@@ -474,7 +472,7 @@ class LensObject(AbstractContainer):
             sub_container.remove_item(lens, item)
             return
 
-        d("Preparing to remove %s" % item)
+        d(f"Preparing to remove {item}")
         for attr_name, value in self.__dict__.items():
             if value is item:
                 del self.__dict__[attr_name]
@@ -570,12 +568,12 @@ class LensObject(AbstractContainer):
                 container_properties = value
                 assert_msg(
                     has_value(container_properties.type),
-                    "You must declare a type for the container definition '%s'." % key,
+                    f"You must declare a type for the container definition '{key}'.",
                 )
                 container = ContainerFactory.create_container(container_properties.type)
                 assert_msg(
                     has_value(container),
-                    "Could not create an appropriate container for '%s'." % key,
+                    f"Could not create an appropriate container for '{key}'.",
                 )
                 self._containers[key] = container
 
@@ -594,7 +592,7 @@ class LensObject(AbstractContainer):
 
         for name, container in self._containers.items():
             container_properties = self.__class__.__dict__[name]
-            d("looking for item to match lens %s" % lens)
+            d(f"looking for item to match lens {lens}")
             if (
                 has_value(container_properties.store_items_from_lenses)
                 and lens in container_properties.store_items_from_lenses

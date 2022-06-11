@@ -2,7 +2,7 @@ from pytest import raises
 
 from pylens.base_lenses import And, AnyOf, Empty, Group, Literal, Repeat
 from pylens.charsets import alphas, nums
-from pylens.debug import assert_equal, auto_name_lenses, describe_test
+from pylens.debug import assert_equal, auto_name_lenses, d, describe_test
 from pylens.exceptions import (
     LensException,
     NoDefaultException,
@@ -10,10 +10,6 @@ from pylens.exceptions import (
 )
 from pylens.readers import ConcreteInputReader
 from pylens.settings import GlobalSettings
-
-
-def d(*args):
-    print(*args)
 
 
 def test_and():

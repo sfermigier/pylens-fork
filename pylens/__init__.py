@@ -78,7 +78,7 @@ def put(lens_or_instance, *args, **kargs):
     ):  # and hasattr(lens_or_instance, "__lens__") :
         assert_msg(
             hasattr(lens_or_instance, "__lens__"),
-            "LensObject %s defines no __lens__" % lens_or_instance,
+            f"LensObject {lens_or_instance} defines no __lens__",
         )
         lens = Lens._coerce_to_lens(lens_or_instance.__class__)
         instance = lens_or_instance  # For clarity.
@@ -93,17 +93,3 @@ def put(lens_or_instance, *args, **kargs):
         lens = AutoGroup(lens)
 
     return lens.put(*args, **kargs)
-
-
-###########################
-# Main.
-#
-
-
-def main():
-    # This can be useful for quick testing.
-    d("Testing")
-
-
-if __name__ == "__main__":
-    main()

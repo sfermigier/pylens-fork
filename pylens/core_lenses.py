@@ -56,7 +56,7 @@ class Forward(Lens):
         self.recursion_limit = recursion_limit
 
     def bind_lens(self, lens):
-        d("Binding to lens %s" % lens)
+        d(f"Binding to lens {lens}")
         assert_msg(len(self.lenses) == 0, "The lens cannot be re-bound.")
         self.set_sublens(lens)
 

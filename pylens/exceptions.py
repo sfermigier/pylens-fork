@@ -75,7 +75,7 @@ class LensException(RollbackException):
         return location
 
     def __str__(self):
-        return "LensException: %s" % self.__msg
+        return f"LensException: {self.__msg}"
 
 
 # Thrown when an abstract token collection cannot find an appropriate token in the

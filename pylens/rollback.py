@@ -162,7 +162,7 @@ class automatic_rollback:
         # If a RollbackException is thrown, revert all of the rollbackables.
         if type and issubclass(type, RollbackException):
             set_rollbackables_state(self.start_state, *self.rollbackables)
-            d("Rolled back rollbackables to: %s." % str(self.rollbackables))
+            d(f"Rolled back rollbackables to: {str(self.rollbackables)}.")
 
         # XXX: Optimise this to first check for concrete reader.
         if self.check_for_state_change:

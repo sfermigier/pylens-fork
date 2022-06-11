@@ -2,15 +2,11 @@ from pytest import raises
 
 from pylens.base_lenses import AnyOf
 from pylens.charsets import alphanums, alphas, nums
-from pylens.debug import assert_equal, describe_test
+from pylens.debug import assert_equal, d, describe_test
 from pylens.exceptions import LensException
 from pylens.readers import ConcreteInputReader
 from pylens.settings import GlobalSettings
 from pylens.util_lenses import List, NewLine, OneOrMore, Optional, Whitespace, Word
-
-
-def d(*args):
-    print(args)
 
 
 def test_one_or_more():
