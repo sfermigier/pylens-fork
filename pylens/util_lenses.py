@@ -26,23 +26,12 @@
 #
 # Author: Nick Blundell <blundeln [AT] gmail [DOT] com>
 # Organisation: www.nickblundell.org.uk
-#
-#
-# import inspect
-# from exceptions import *
-# from containers import *
-# from readers import *
-# from util import *
-# from debug import *
-# from base_lenses import *
-# from core_lenses import *
+
 from pylens.base_lenses import And, AnyOf, Empty, Group, Lens, Or, Repeat
-from pylens.charsets import alphanums, alphas, nums
+from pylens.charsets import alphanums, alphas
 from pylens.core_lenses import Until
-from pylens.debug import assert_equal, assert_msg, assert_raises, d, describe_test
+from pylens.debug import assert_msg
 from pylens.exceptions import LensException
-from pylens.readers import ConcreteInputReader
-from pylens.settings import GlobalSettings
 from pylens.util import has_value
 
 
@@ -52,12 +41,6 @@ class OneOrMore(Repeat):
             options["min_count"] = 1
         # Mental note: Don't accidentally write something like super(Repeat...
         super(OneOrMore, self).__init__(*args, **options)
-
-    @staticmethod
-    def TESTS():
-        # This is really just to check the lens construction.
-        lens = OneOrMore(AnyOf(nums, type=int), type=list)
-        assert lens.get("123") == [1, 2, 3]
 
 
 OM = OneOrMore
@@ -77,15 +60,6 @@ class Optional(Or):
     def __init__(self, lens, **options):
         super(Optional, self).__init__(lens, Empty(), **options)
 
-    @staticmethod
-    def TESTS():
-        GlobalSettings.check_consumption = False
-        lens = Optional(AnyOf(alphas, type=str))
-        assert lens.get("abc") == "a"
-        assert lens.get("123") == None
-        assert lens.put("a") == "a"
-        assert lens.put(1) == ""
-
 
 O = Optional
 
@@ -98,29 +72,6 @@ class List(And):
             lens, ZeroOrMore(And(delimiter_lens, lens)), **options
         )
 
-    @staticmethod
-    def TESTS():
-
-        lens = List(AnyOf(nums, type=int), ",", type=list)
-        d("GET")
-        assert lens.get("1,2,3") == [1, 2, 3]
-        d("PUT")
-        assert lens.put([6, 2, 6, 7, 4, 8]) == "6,2,6,7,4,8"
-
-        # It was getting flattened due to And within And!
-        describe_test("Test a bug I found with nested lists.")
-        INPUT = "1|2,3|4,5|6"
-        lens = List(
-            List(AnyOf(nums, type=int), "|", name="inner_list", type=list),
-            ",",
-            name="outer_list",
-            type=list,
-        )
-        got = lens.get(INPUT)
-        assert_equal(got, [[1, 2], [3, 4], [5, 6]])
-        got.insert(2, [6, 7])
-        assert_equal(lens.put(got), "1|2,3|4,6|7,5|6")
-
 
 class NewLine(Or):
     """Matches a newline char or the end of text, so extends the Or lens."""
@@ -130,15 +81,6 @@ class NewLine(Or):
 
     # TODO: Ensure it puts a \n regardless of being at end of file, to allow
     # appending. Could hook put
-
-    @staticmethod
-    def TESTS():
-        lens = NewLine()
-        assert lens.get("\n") == None
-        assert lens.get("") == None
-        with assert_raises(LensException):
-            lens.get("abc")
-        assert lens.put("\n") == "\n"
 
 
 NL = NewLine  # Abbreviation
@@ -185,35 +127,6 @@ class Word(And):
         )
 
         super(Word, self).__init__(left_lens, right_lens, **options)
-
-    @staticmethod
-    def TESTS():
-
-        GlobalSettings.check_consumption = False
-
-        lens = Word(alphanums, init_chars=alphas, type=str, max_count=5)
-        d("GET")
-        assert lens.get("w23dffdf3") == "w23df"
-        with assert_raises(LensException):
-            assert lens.get("1w23dffdf3") == "w23df"
-
-        d("PUT")
-        assert lens.put("R2D2") == "R2D2"
-
-        with assert_raises(LensException):
-            lens.put("2234") == "R2D2"
-
-        # XXX: Should fail if length checking working correctly.
-        # with assert_raises(LensException) :
-        #  lens.put("TooL0ng")
-
-        d("Test with no type")
-        lens = Word(alphanums, init_chars=alphas, max_count=5, default="a123d")
-        assert lens.get("w23dffdf3") == None
-        concrete_input_reader = ConcreteInputReader("ab12_3456")
-        assert lens.put(None, concrete_input_reader) == "ab12"
-        assert concrete_input_reader.get_remaining() == "_3456"
-        assert lens.put() == "a123d"
 
 
 class Whitespace(Or):
@@ -267,41 +180,6 @@ class Whitespace(Or):
         # Set up options for Or.
         options["default"] = default
         super(Whitespace, self).__init__(*or_lenses, **options)
-
-    @staticmethod
-    def TESTS():
-
-        GlobalSettings.check_consumption = False
-
-        # Simple whitespace.
-        lens = Whitespace(" ")
-        concrete_input_reader = ConcreteInputReader("  \t  xyz")
-        assert (
-            lens.get(concrete_input_reader) == None
-            and concrete_input_reader.get_remaining() == "xyz"
-        )
-        assert lens.put() == " "
-
-        # Test that the Empty lens is valid when the default space is set to empty string (i.e. not space).
-        lens = Whitespace("")
-        assert lens.get("xyz") == None
-        assert lens.put() == ""
-
-        # With slash continuation.
-        lens = Whitespace(" ", slash_continuation=True)
-        concrete_input_reader = ConcreteInputReader("  \t\\\n  xyz")
-        assert (
-            lens.get(concrete_input_reader) == None
-            and concrete_input_reader.get_remaining() == "xyz"
-        )
-
-        # With indent continuation.
-        lens = Whitespace(" ", indent_continuation=True)
-        concrete_input_reader = ConcreteInputReader("  \n xyz")
-        assert (
-            lens.get(concrete_input_reader) == None
-            and concrete_input_reader.get_remaining() == "xyz"
-        )
 
 
 WS = Whitespace  # Abreviation.
