@@ -35,5 +35,6 @@ def test_readers():
     cloned_reader = ConcreteInputReader(concrete_reader)
     assert cloned_reader.string is concrete_reader.string
     assert cloned_reader.is_aligned_with(concrete_reader)
+
     cloned_reader.position += 1
     assert not cloned_reader.is_aligned_with(concrete_reader)

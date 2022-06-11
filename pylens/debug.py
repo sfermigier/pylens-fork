@@ -31,7 +31,8 @@
 #
 # Description:
 #   Isolates all debugging functions.
-#
+
+from pytest import raises as assert_raises
 
 # Optionally include nbdebug functions.
 try:
@@ -57,22 +58,22 @@ def assert_equal(got, expected):
     assert_msg(got == expected, f"Expected >>>{expected}<<< but got >>>{got}<<<")
 
 
-class assert_raises:
-    """A cleaner way to assert that an exception is thrown from some code."""
-
-    def __init__(self, exception_class):
-        self.exception_class = exception_class
-
-    def __enter__(self):
-        pass
-
-    def __exit__(self, type, exception, traceback):
-        if not exception:
-            raise Exception("Expected to see exception: %s" % self.exception_class)
-
-        # Returning True means 'suppress exception', which we do if the exception is
-        # of the type we expected.
-        return isinstance(exception, self.exception_class)
+# class assert_raises:
+#     """A cleaner way to assert that an exception is thrown from some code."""
+#
+#     def __init__(self, exception_class):
+#         self.exception_class = exception_class
+#
+#     def __enter__(self):
+#         pass
+#
+#     def __exit__(self, type, exception, traceback):
+#         if not exception:
+#             raise Exception("Expected to see exception: %s" % self.exception_class)
+#
+#         # Returning True means 'suppress exception', which we do if the exception is
+#         # of the type we expected.
+#         return isinstance(exception, self.exception_class)
 
 
 def auto_name_lenses(local_variables):

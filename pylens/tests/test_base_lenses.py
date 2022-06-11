@@ -1,6 +1,8 @@
+from pytest import raises
+
 from pylens.base_lenses import And, AnyOf, Empty, Group, Literal, Repeat
 from pylens.charsets import alphas, nums
-from pylens.debug import assert_equal, assert_raises, auto_name_lenses, describe_test
+from pylens.debug import assert_equal, auto_name_lenses, describe_test
 from pylens.exceptions import (
     LensException,
     NoDefaultException,
@@ -131,7 +133,7 @@ def test_any_of():
 
     d("Test failure when default value required.")
     lens = AnyOf(alphas)
-    with assert_raises(NoDefaultException):
+    with raises(NoDefaultException):
         lens.put()
 
     d("TEST type coercion")
@@ -152,7 +154,7 @@ def test_repeat():
     d("GET")
     assert lens.get("1234") == [1, 2, 3, 4]
 
-    with assert_raises(TooFewIterationsException):
+    with raises(TooFewIterationsException):
         lens.get("12")
     # Test max_count
     assert lens.get(ConcreteInputReader("12345678")) == [1, 2, 3, 4, 5]
@@ -204,7 +206,7 @@ def test_repeat():
 
     describe_test("Test the functionality without default values.")
     # Should fail, since lens has no default, so could put infinite items.
-    with assert_raises(LensException):
+    with raises(LensException):
         lens.put()
 
     describe_test("Test the functionality with default value on Repeat.")
@@ -232,16 +234,16 @@ def test_repeat():
     d("Test infinity problem")
     lens = Repeat(Empty(), min_count=3, max_count=None)
     # Will fail to get anything since Empty lens changes no state.
-    with assert_raises(LensException):
+    with raises(LensException):
         lens.get("anything")
     # Likewise.
-    with assert_raises(LensException):
+    with raises(LensException):
         lens.put(None)
 
     d("Test the functionality with default value on sub-lens.")
     lens = Repeat(AnyOf(nums, default=4))
     # Should faile since no input or items are consumed by the lens.
-    with assert_raises(LensException):
+    with raises(LensException):
         lens.put()
 
 
@@ -252,7 +254,7 @@ def test_empty():
     lens = Empty(type=str)
     assert lens.get("anything") == ""
     assert lens.put("", "anything") == ""
-    with assert_raises(LensException):
+    with raises(LensException):
         lens.put(" ", "anything")
 
     assert lens.put("") == ""
@@ -262,7 +264,7 @@ def test_empty():
     assert lens.get("anything") == None
     assert lens.put() == ""
     # Lens does not expect to put an item, valid or otherwise.
-    with assert_raises(LensException):
+    with raises(LensException):
         lens.put("", "anything")
 
     d("Test special modes.")
@@ -270,13 +272,13 @@ def test_empty():
     concrete_reader = ConcreteInputReader("hello")
     # Progress the input reader so lens does not match.
     concrete_reader.consume_char()
-    with assert_raises(LensException):
+    with raises(LensException):
         lens.get(concrete_reader)
 
     lens = Empty(mode=Empty.END_OF_TEXT)
     concrete_reader = ConcreteInputReader("h")
     # This should throw an Exception
-    with assert_raises(LensException):
+    with raises(LensException):
         lens.get(concrete_reader)
     concrete_reader.consume_char()
     # This should succeed quietly.
@@ -299,7 +301,7 @@ def test_group():
     assert lens.put(["x", 4]) == "x4"
 
     d("TEST erroneous Group with no type")
-    with assert_raises(AssertionError):
+    with raises(AssertionError):
         lens = Group(AnyOf(nums))
 
 
@@ -316,7 +318,7 @@ def test_litteral():
     # XXX: Need to think more about this, and what it impacts.
     # Should flag that we mistakenly passed an item to a non-store low-level
     # lens that could not possibly us it.
-    # with assert_raises(LensException) :
+    # with raises(LensException) :
     #  lens.put("xyz")
 
     d("Test as STORE lens, pointless as it is with this lens.")

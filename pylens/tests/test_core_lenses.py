@@ -1,7 +1,9 @@
+from pytest import raises
+
 from pylens.base_lenses import AnyOf, Group
 from pylens.charsets import alphas
 from pylens.core_lenses import Forward, Until
-from pylens.debug import assert_raises, d, describe_test
+from pylens.debug import d, describe_test
 from pylens.exceptions import InfiniteRecursionException
 
 
@@ -35,7 +37,7 @@ def test_forward():
     lens = Forward()
     lens << "[" + (lens | AnyOf(alphas, type=str)) + "]"
     lens = Group(lens, type=list)
-    with assert_raises(InfiniteRecursionException):
+    with raises(InfiniteRecursionException):
         output = lens.put(["k"])
 
 

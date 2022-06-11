@@ -1,6 +1,8 @@
+from pytest import raises
+
 from pylens.base_lenses import AnyOf
 from pylens.charsets import alphanums, alphas, nums
-from pylens.debug import assert_equal, assert_raises, describe_test
+from pylens.debug import assert_equal, describe_test
 from pylens.exceptions import LensException
 from pylens.readers import ConcreteInputReader
 from pylens.settings import GlobalSettings
@@ -52,7 +54,7 @@ def test_newline():
     lens = NewLine()
     assert lens.get("\n") == None
     assert lens.get("") == None
-    with assert_raises(LensException):
+    with raises(LensException):
         lens.get("abc")
     assert lens.put("\n") == "\n"
 
@@ -63,17 +65,17 @@ def test_word():
     lens = Word(alphanums, init_chars=alphas, type=str, max_count=5)
     d("GET")
     assert lens.get("w23dffdf3") == "w23df"
-    with assert_raises(LensException):
+    with raises(LensException):
         assert lens.get("1w23dffdf3") == "w23df"
 
     d("PUT")
     assert lens.put("R2D2") == "R2D2"
 
-    with assert_raises(LensException):
+    with raises(LensException):
         lens.put("2234") == "R2D2"
 
     # XXX: Should fail if length checking working correctly.
-    # with assert_raises(LensException) :
+    # with raises(LensException) :
     #  lens.put("TooL0ng")
 
     d("Test with no type")

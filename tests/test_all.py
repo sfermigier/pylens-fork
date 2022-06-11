@@ -142,8 +142,8 @@ def test_dict():
 
 
 def test_consumption():
-
     describe_test("Test input consumption")
+
     lens = Repeat(AnyOf(nums, type=int), type=list)
     with assert_raises(NotFullyConsumedException):
         lens.get("123abc")  # This will leave 'abc'
@@ -159,7 +159,6 @@ def test_consumption():
 
 
 def test_list():
-
     lens = Repeat(AnyOf(nums, type=int), type=list)
     d("GET")
     assert lens.get("123") == [1, 2, 3]
@@ -172,7 +171,6 @@ def test_list():
 
 
 def test_model_ordered_matching_list():
-
     lens = Repeat(
         Group(
             AnyOf(alphas, type=str) + AnyOf("*+-", default="*") + AnyOf(nums, type=int),
@@ -209,7 +207,6 @@ def test_model_ordered_matching_list():
 
 
 def test_source_ordered_matching_list():
-
     lens = Repeat(
         Group(
             AnyOf(alphas, type=str) + AnyOf("*+-", default="*") + AnyOf(nums, type=int),

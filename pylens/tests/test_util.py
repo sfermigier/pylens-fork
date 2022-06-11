@@ -1,5 +1,5 @@
-from .debug import d
-from .util import Properties
+from pylens.debug import d
+from pylens.util import Properties
 
 
 def test_properties():
