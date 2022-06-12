@@ -6,13 +6,13 @@ from pylens.rollback import automatic_rollback
 def test_readers():
     concrete_reader = ConcreteInputReader("ABCD")
     output = ""
-    for i in range(0, 2):
+    for _i in range(0, 2):
         output += concrete_reader.consume_char()
     assert not concrete_reader.is_fully_consumed()
     assert concrete_reader.get_remaining() == "CD"
     assert concrete_reader.get_consumed_string(0) == "AB"
 
-    for i in range(0, 2):
+    for _i in range(0, 2):
         output += concrete_reader.consume_char()
     assert output == "ABCD"
     assert concrete_reader.is_fully_consumed()

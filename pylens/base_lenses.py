@@ -354,12 +354,7 @@ class Lens:
                 item_label_string = ""
 
             d(
-                "Initial state: item={item}{item_label_string}, in={concrete_input_reader}, cont={current_container}".format(
-                    item=item,
-                    concrete_input_reader=concrete_input_reader,
-                    current_container=current_container,
-                    item_label_string=item_label_string,
-                )
+                f"Initial state: item={item}{item_label_string}, in={concrete_input_reader}, cont={current_container}"
             )
 
         # First handle cases where our lens does not directly store an item: it will
@@ -514,8 +509,7 @@ class Lens:
             and not original_concrete_input_reader.is_fully_consumed()
         ):
             raise NotFullyConsumedException(
-                "The following input remains to be consumed by this lens: '%s'"
-                % original_concrete_input_reader.get_remaining()
+                f"The following input remains to be consumed by this lens: '{original_concrete_input_reader.get_remaining()}'"
             )
 
         return output
@@ -667,7 +661,7 @@ class Lens:
         # This allows a list singleton to be returned as a single item, for
         # convenience.
         if (
-            self.options.auto_list == True
+            self.options.auto_list is True
             and self.has_type()
             and issubclass(self.type, list)
             and len(item) == 1
@@ -717,7 +711,7 @@ class Lens:
 
         # Handle auto_list, expanding an item into a list, being careful to restore any meta data.
         if (
-            self.options.auto_list == True
+            self.options.auto_list is True
             and issubclass(self.type, list)
             and not isinstance(item, list)
         ):
@@ -1175,8 +1169,7 @@ class Repeat(Lens):
 
                 if not rollback_context.some_state_changed:
                     d(
-                        "Lens %s changed no state during this iteration, so we must break out - or spin for ever"
-                        % lens
+                        f"Lens {lens} changed no state during this iteration, so we must break out - or spin for ever"
                     )
                     break
 

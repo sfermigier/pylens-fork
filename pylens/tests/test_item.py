@@ -9,5 +9,5 @@ def test_item_meta():
 
     # Should be able to add any attribute.
     item._meta_data.monkeys = True
-    assert item._meta_data.monkeys == True
-    assert item._meta_data.bananas == None
+    assert item._meta_data.monkeys is True
+    assert item._meta_data.bananas is None

@@ -37,8 +37,6 @@
 #
 from pylens.util import Properties, has_value
 
-from .debug import d
-
 META_ATTRIBUTE = "_meta_data"
 
 #
