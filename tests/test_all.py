@@ -34,12 +34,14 @@
 #  testing.  Some of these are based on tricky config file examples given in the Augeas system
 #  Note that these lenses may not be completely accurate but are an aid to testing.
 #
+from pytest import raises
+
 from pylens import get, put
 from pylens.base_lenses import AnyOf, Group, Repeat
 from pylens.charsets import alphas, nums
 from pylens.containers import MODEL, SOURCE, Container, LensObject
 from pylens.core_lenses import Until
-from pylens.debug import assert_equal, assert_raises, describe_test
+from pylens.debug import assert_equal, describe_test
 from pylens.exceptions import NotFullyConsumedException, NoTokenToConsumeException
 from pylens.settings import GlobalSettings
 from pylens.util_lenses import (
@@ -86,7 +88,7 @@ def test_dict():
     assert lens.get("1a") == {"number": 1, "character": "a"}
     d("PUT")
     assert lens.put({"number": 4, "character": "q"}, "1a") == "4q"
-    with assert_raises(NoTokenToConsumeException):
+    with raises(NoTokenToConsumeException):
         lens.put({"number": 4, "wrong_label": "q"}, "1a")
 
     # Test dynamic labels
@@ -145,16 +147,16 @@ def test_consumption():
     describe_test("Test input consumption")
 
     lens = Repeat(AnyOf(nums, type=int), type=list)
-    with assert_raises(NotFullyConsumedException):
+    with raises(NotFullyConsumedException):
         lens.get("123abc")  # This will leave 'abc'
 
-    with assert_raises(NotFullyConsumedException):
+    with raises(NotFullyConsumedException):
         lens.put([1, 2], "123abc")  # This will leave 'abc'
 
     describe_test("Test container consumption")
 
     # This will consume input but leave "a" in list.
-    with assert_raises(NotFullyConsumedException):
+    with raises(NotFullyConsumedException):
         lens.put([1, 2, "a"], "67")
 
 

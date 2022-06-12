@@ -32,8 +32,6 @@
 # Description:
 #   Isolates all debugging functions.
 
-from pytest import raises as assert_raises
-
 # Optionally include nbdebug functions.
 try:
     from nbdebug import IN_DEBUG_MODE, breakpoint, d, set_indent_function

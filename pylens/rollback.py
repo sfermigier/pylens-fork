@@ -36,7 +36,7 @@
 import copy
 
 from pylens.debug import d
-from pylens.exceptions import LensException, RollbackException
+from pylens.exceptions import RollbackException
 
 
 class Rollbackable:

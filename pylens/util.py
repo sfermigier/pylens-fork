@@ -32,7 +32,7 @@
 #
 import copy
 
-from .debug import assert_equal, d, describe_test
+from .debug import assert_equal, describe_test
 
 
 class Properties:
