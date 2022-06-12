@@ -96,19 +96,3 @@ def enable_meta_data(item):
         setattr(item, META_ATTRIBUTE, Properties())
 
     return item
-
-
-#
-# TESTS
-#
-
-
-def item_meta_test():
-    d("Started")
-    item = "hello"
-    item = enable_meta_data(item)
-
-    # Should be able to add any attribute.
-    item._meta_data.monkeys = True
-    assert item._meta_data.monkeys == True
-    assert item._meta_data.bananas == None

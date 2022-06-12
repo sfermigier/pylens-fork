@@ -48,12 +48,12 @@ from .exceptions import (
 from .item import enable_meta_data, list_wrapper
 from .readers import ConcreteInputReader
 from .rollback import Rollbackable, automatic_rollback, get_rollbackables_state
+from .settings import GlobalSettings
+from .util import Properties, escape_for_display, has_value, range_truncate, truncate
 
 #########################################################
 # Base Lens
 #########################################################
-from .settings import GlobalSettings
-from .util import Properties, escape_for_display, has_value, range_truncate, truncate
 
 
 class Lens:
@@ -171,8 +171,7 @@ class Lens:
             # since all items should be stored WITHIN the container
             assert_msg(
                 self._get(concrete_input_reader, lens_container) == None,
-                "Container lens %s has GOT an item, but all items must be stored in the current container, not returned."
-                % self,
+                f"Container lens {self} has GOT an item, but all items must be stored in the current container, not returned.",
             )
 
             # Since we created the container, we will return it as our item, for a
@@ -190,8 +189,7 @@ class Lens:
             # simple type, such as int).
             assert_msg(
                 has_value(item),
-                "Somethings gone wrong: %s is a STORE lens, so we should have got an item."
-                % self,
+                f"Somethings gone wrong: {self} is a STORE lens, so we should have got an item.",
             )
             if not isinstance(item, self.type):
                 item = self.type(item)
@@ -244,8 +242,7 @@ class Lens:
             and not concrete_input_reader.is_fully_consumed()
         ):
             raise NotFullyConsumedException(
-                "The following input remains to be consumed by this lens: '%s'"
-                % concrete_input_reader.get_remaining()
+                f"The following input remains to be consumed by this lens: '{concrete_input_reader.get_remaining()}'"
             )
 
         # Pre-process outgoing item.

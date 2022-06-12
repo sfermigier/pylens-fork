@@ -5,6 +5,9 @@ test:
 	python examples/basic.py
 	python examples/advanced.py
 
+lint:
+	flake8 pylens
+
 format:
 	isort pylens tests examples
 	black pylens tests examples
