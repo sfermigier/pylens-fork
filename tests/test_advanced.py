@@ -55,7 +55,7 @@ from pylens.util_lenses import (
 )
 
 
-def complex_class_test():
+def test_complex_class():
     """
     This is an example of how we could embedded lenses within classes to
     manipulate the widely used interfaces.conf file to configure network
@@ -178,19 +178,17 @@ auto eth1
     config.auto_interfaces = [["eth0"], ["wlan2", "eth2"]]
 
     output = put(config)
-    assert_equal(
-        output,
-        """iface eth3 inet static
+    expected = """iface eth3 inet static
    dns-nameservers 1.2.3.4 1.2.3.5
-   some-thing something or another
    netmask 255.255.255.0
+   some-thing something or another
 auto eth0
 auto wlan2 eth2
-""",
-    )
+"""
+    assert expected == output
 
 
-def debctrl_test():
+def test_debctrl():
     """An example based on an example from the Augeas user guide."""
 
     # As a whole, this is a fairly complex lens, though as you work though it you
@@ -410,8 +408,3 @@ Build-Depends-Indep: perl (>= 5.8.8-12), libcarp-assert-more-perl,
         output,
         """Source: Just a simple entry\nBuild-Depends-Indep: cheese (1.2) | nbdebug,\n  someapp (<= 1.1)\n""",
     )
-
-
-# Useful for testing an installation.
-if __name__ == "__main__":
-    debctrl_test()

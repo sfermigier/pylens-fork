@@ -103,7 +103,7 @@ def generate_pages_from_example_code(python_file) :
           # TODO: Need to handle multilines. 
           #code_block = re.sub("assert_equal\((.+?)\)\s*\n", f, code_block, flags=re.DOTALL)
           
-        code_block = "\n\n::\n\n  %s\n\n" % code_block
+        code_block = f"\n\n::\n\n  {code_block}\n\n"
         output_blocks.append([prev_match.end(0), code_block])
     prev_match = match
 
@@ -152,7 +152,7 @@ def generate_docs_from_example_tests():
     output = name.capitalize() + "\n" + "="*80 + "\n\n" + output
 
     if output.strip() :
-      open("docs/source/examples/%s.rst" % name,"w").write(output)
+      open(f"docs/source/examples/{name}.rst","w").write(output)
 
 def main():
   

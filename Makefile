@@ -1,14 +1,12 @@
-all: test
+all: test lint
 
 test:
-	pytest tests/test_all.py pylens
-	python examples/basic.py > /dev/null
-	python examples/advanced.py > /dev/null
+	pytest tests pylens
 
 lint:
-	flake8 pylens
+	ruff pylens
 
 format:
-	isort pylens tests examples
-	black pylens tests examples
+	isort pylens tests
+	black pylens tests
 

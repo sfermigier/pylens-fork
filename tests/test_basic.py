@@ -50,12 +50,12 @@ from pylens.util_lenses import (
 )
 
 
-def fundamentals_test():
+def test_fundamentals():
     """
     If you are familiar with parsing of strings, then you will quickly pick up the
-    concept of bi-directional programming (i.e. essentially parsing and then
+    concept of bidirectional programming (i.e. essentially parsing and then
     unparsing strings to and from, in this case, some python structure).  A lens
-    defines a grammar (or part of) to define this bi-directional transformation.
+    defines a grammar (or part of) to define this bidirectional transformation.
 
     An important concept of a lens is that we need to define which parts of the
     original string structure we are interested in manipulating in our python
@@ -127,7 +127,7 @@ def fundamentals_test():
     # complex ones, much like building up a BNF grammar.
 
 
-def aggregating_lenses_test():
+def test_aggregating_lenses():
     # We can use the And lens to concatenate several other lenses.  Note that, here we
     # specify the And's type as a python list, otherwise we will have nothing into
     # which the extracted values of the two AnyOf lenses can be stored - which
@@ -161,7 +161,7 @@ def aggregating_lenses_test():
     )
 
 
-def grouping_test():
+def test_grouping():
     # Note that there are some syntax shortcuts (a la pyparsing) we can use when
     # defining lenses.
 
@@ -180,7 +180,7 @@ def grouping_test():
     assert_equal(lens.get("b--=--3"), ["b", 3])
 
 
-def conditional_lenses_test():
+def test_conditional_lenses():
     # But we also need to allow for alternative branching in realistic grammar
     # parsing (and unparsing), so here we can use the Or lens.
     # Here the syntax A | B | C  is shorthand for Or(A, B, C).
@@ -216,7 +216,7 @@ def conditional_lenses_test():
     # reflect semantic changes.
 
 
-def combining_characters_test():
+def test_combining_characters():
     # Sometimes we wish to combine aggregated single character lenses into a
     # string, which can be done with the combine_chars argument of an appropriately
     # constructed lens of type list.
@@ -229,7 +229,7 @@ def combining_characters_test():
     assert_equal(lens.put("b8m2s8l2"), "b--=--8m--=--2s--=--8l--=--2")
 
 
-def useful_lenses_test():
+def test_useful_lenses():
     # It is very easy to extend pylens with new lenses but I've created a few
     # already based on common parser patterns and on those useful parsing classes
     # you can find in pyparsing.
@@ -258,7 +258,7 @@ def useful_lenses_test():
     )
 
 
-def simple_list_test():
+def test_simple_list():
     # Let's define some sample input.
     INPUT_STRING = "monkeys,\tmonsters,\t rabbits, frogs, badgers"
 
@@ -287,7 +287,7 @@ def simple_list_test():
     assert_equal(output, "monkeys,\trabbits,\t frogs, badgers, dinosaurs, snails")
 
 
-def more_complex_structure_test():
+def test_more_complex_structure():
     # Let's define out input structure.
     INPUT_STRING = """
   people: [bill, ben]
@@ -360,7 +360,7 @@ def more_complex_structure_test():
     )
 
 
-def mapping_lenses_to_classes_test():
+def test_mapping_lenses_to_classes():
     """
     We have seen how we can use list and dict container types to store items
     extracted by a lens but we can also easily define

@@ -61,7 +61,7 @@ class Optional(Or):
         super().__init__(lens, Empty(), **options)
 
 
-O = Optional
+O = Optional  # noqa: E741
 
 
 class List(And):
@@ -111,7 +111,6 @@ class Word(And):
             options["type"] = list
         else:
             any_of_type = None
-            and_type = None
 
         # Ensure chars are combined if this is a STORE lens.
         options["combine_chars"] = True

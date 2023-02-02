@@ -1,3 +1,5 @@
+# ruff: noqa
+
 #
 # Copyright (c) 2010-2011, Nick Blundell
 # All rights reserved.

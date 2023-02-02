@@ -66,7 +66,7 @@ def distribute(upload=False) :
   os.chdir("dist")
   source_package = glob.glob("pylens*.gz")[0]
   package_root = source_package.replace(".tar.gz", "")
-  run("tar xzf %s" % source_package)
+  run(f"tar xzf {source_package}")
   os.chdir(package_root)
   
   # Run tests on packaged code, and if a single test fails, this will raise an
