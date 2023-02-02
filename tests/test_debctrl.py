@@ -54,150 +54,8 @@ from pylens.util_lenses import (
     ZeroOrMore,
 )
 
-
-def test_complex_class():
-    """
-    This is an example of how we could embedded lenses within classes to
-    manipulate the widely used interfaces.conf file to configure network
-    interfaces of a UNIX systems.
-
-    Note that it does not aim to be complete, just a demonstration of how you
-    could compose such a mapping.
-    """
-
-    INPUT = """iface eth0-home inet static
-   address 192.168.1.1
-   netmask 255.255.255.0
-   gateway  67.207.128.1
-   dns-nameservers 67.207.128.4 67.207.128.5
-   up flush-mail
-
-auto lo eth0
-# A comment
-auto eth1 
-"""
-
-    # First we define a class to represent the iface stanza.  I break it up a
-    # little to make it clearer.
-    class NetworkInterface(LensObject):
-        # Some component lenses.
-        indent = WS("   ")
-        interface_attribute = KeyValue(
-            indent
-            + Keyword(additional_chars="_-", is_label=True)
-            + WS(" ")
-            + Until(NL(), type=str)
-            + NL()
-        )
-
-        # Put it all together.
-        __lens__ = (
-            "iface"
-            + WS(" ")
-            + Keyword(additional_chars="_-", is_label=True)
-            + WS(" ")
-            + Keyword(label="address_family")
-            + WS(" ")
-            + Keyword(label="method")
-            + NL()
-            + ZeroOrMore(interface_attribute)
-        )
-
-        def __init__(self, **kargs):
-            """A simple constructor, which simply store keyword args as attributes."""
-            for key, value in kargs.items():
-                setattr(self, key, value)
-
-        # Define label mappings, so labels such as "dns-nameservers" are mapped to and
-        # from a valid python identifier such as "dns_nameservers" and can
-        # therefore be manipulated as object attributes.
-        def _map_label_to_identifier(self, label):
-            return label.replace("-", "_")
-
-        def _map_identifier_to_label(self, attribute_name):
-            return attribute_name.replace("_", "-")
-
-    # Now we can define a class to represent the whole configuration, such that
-    # it will contain NetworkInterface objects, etc.
-
-    class InterfaceConfiguration(LensObject):
-        auto_lens = Group(
-            "auto"
-            + WS(" ")
-            + List(Keyword(additional_chars="_-", type=str), WS(" "), type=None)
-            + WS("")
-            + NL(),
-            type=list,
-            name="auto_lens",
-        )
-        __lens__ = ZeroOrMore(
-            NetworkInterface | auto_lens | HashComment() | BlankLine()
-        )
-
-        # Define containers within this container.
-        interfaces = Container(store_items_of_type=[NetworkInterface], type=dict)
-        auto_interfaces = Container(store_items_from_lenses=[auto_lens], type=list)
-
-    if True:
-        describe_test("GET InterfaceConfiguration")
-        config = get(InterfaceConfiguration, INPUT)
-        assert_equal(config.interfaces["eth0-home"].address, "192.168.1.1")
-        assert_equal(config.auto_interfaces[0][1], "eth0")
-        assert_equal(len(config.auto_interfaces), 2)
-
-        describe_test("PUT InterfaceConfiguration")
-        config.interfaces["eth0-home"].netmask = "bananas"
-        config.auto_interfaces[0].insert(1, "wlan2")
-        output = put(config)
-        assert_equal(
-            output,
-            """iface eth0-home inet static
-   address 192.168.1.1
-   gateway  67.207.128.1
-   dns-nameservers 67.207.128.4 67.207.128.5
-   up flush-mail
-   netmask bananas
-
-auto lo wlan2 eth0
-# A comment
-auto eth1 
-""",
-        )
-
-    describe_test("CREATE InterfaceConfiguration")
-    GlobalSettings.check_consumption = True
-    interface = NetworkInterface(
-        address_family="inet",
-        method="static",
-        dns_nameservers="1.2.3.4 1.2.3.5",
-        netmask="255.255.255.0",
-    )
-    interface.some_thing = "something or another"
-    config = InterfaceConfiguration()
-    config.interfaces = {"eth3": interface}
-    config.auto_interfaces = [["eth0"], ["wlan2", "eth2"]]
-
-    output = put(config)
-    expected = """iface eth3 inet static
-   dns-nameservers 1.2.3.4 1.2.3.5
-   netmask 255.255.255.0
-   some-thing something or another
-auto eth0
-auto wlan2 eth2
-"""
-    assert expected == output
-
-
-def test_debctrl():
-    """An example based on an example from the Augeas user guide."""
-
-    # As a whole, this is a fairly complex lens, though as you work though it you
-    # should see that the steps are fairly consistant.
-    # This lens demonstrates the use of labels and the auto_list lens modifier. I
-    # also use incremental testing throughout, which should help you to follow
-    # it.
-
-    DEB_CTRL = """Source: libconfig-model-perl
+DEB_CTRL = """\
+Source: libconfig-model-perl
 Section: perl
 Maintainer: Debian Perl Group <pkg-perl-maintainers@xx>
 Build-Depends: debhelper (>= 7.0.0),
@@ -207,6 +65,16 @@ Build-Depends-Indep: perl (>= 5.8.8-12), libcarp-assert-more-perl,
                      libparse-recdescent-perl (>= 1.90.0),
                      liblog-log4perl-perl (>= 1.11)
 """
+
+
+def test_debctrl():
+    """An example based on an example from the Augeas user guide."""
+
+    # As a whole, this is a fairly complex lens, though as you work through it you
+    # should see that the steps are fairly consistant.
+    # This lens demonstrates the use of labels and the auto_list lens modifier. I
+    # also use incremental testing throughout, which should help you to follow
+    # it.
 
     # We build up the lens starting with the easier parts, testing snippets as we go.
     # Recall, when we set is_label we imply the lens has type=str (i.e is a STORE
@@ -236,7 +104,7 @@ Build-Depends-Indep: perl (>= 5.8.8-12), libcarp-assert-more-perl,
 
     # We lazily use the Until lens here, but you could parse the value further if you liked.
     # Note, auto_list unwraps a list if there is a single item, for convenience.
-    # It is useful when we wish to associated a single item with a labelled
+    # It is useful when we wish to associate a single item with a labelled
     # group.
     simple_entry = Group(
         simple_entry_label + colon + Until(NewLine(), type=str) + NewLine(),
@@ -253,7 +121,7 @@ Build-Depends-Indep: perl (>= 5.8.8-12), libcarp-assert-more-perl,
     else:
         assert_equal(got, ["Debian Perl Group <pkg-perl-maintainers@xx>"])
 
-    # An insight into how pylens stores meta data on items to assist storage.
+    # An insight into how pylens stores metadata on items to assist storage.
     assert_equal(got._meta_data.label, "Maintainer")
 
     # Now try to PUT with the lens.
@@ -381,9 +249,7 @@ Build-Depends-Indep: perl (>= 5.8.8-12), libcarp-assert-more-perl,
     output = lens.put(got)
 
     # Now lets check the output.
-    assert_equal(
-        output,
-        """Source: libconfig-model-perl
+    expected = """Source: libconfig-model-perl
 Section: perl
 Maintainer: Debian Perl Group <pkg-perl-maintainers@xx>
 Build-Depends-Indep: perl (>= 5.8.8-12), libcarp-assert-more-perl,
@@ -391,8 +257,8 @@ Build-Depends-Indep: perl (>= 5.8.8-12), libcarp-assert-more-perl,
                      libexception-class-perl,
                      libparse-recdescent-perl (>= 1.90.0),
   liblog-log4perl-perl (>= 1.11)
-""",
-    )
+"""
+    assert output == expected
 
     # Now let's finish off by creating some output from scratch (i.e. using
     # default values of all non-store lenses rather than any original input.
@@ -404,7 +270,5 @@ Build-Depends-Indep: perl (>= 5.8.8-12), libcarp-assert-more-perl,
         ],
     }
     output = lens.put(data)
-    assert_equal(
-        output,
-        """Source: Just a simple entry\nBuild-Depends-Indep: cheese (1.2) | nbdebug,\n  someapp (<= 1.1)\n""",
-    )
+    expected = """Source: Just a simple entry\nBuild-Depends-Indep: cheese (1.2) | nbdebug,\n  someapp (<= 1.1)\n"""
+    assert output == expected
