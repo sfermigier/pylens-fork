@@ -51,7 +51,6 @@ from pylens.util_lenses import (
 
 
 def fundamentals_test():
-
     """
     If you are familiar with parsing of strings, then you will quickly pick up the
     concept of bi-directional programming (i.e. essentially parsing and then
@@ -129,7 +128,6 @@ def fundamentals_test():
 
 
 def aggregating_lenses_test():
-
     # We can use the And lens to concatenate several other lenses.  Note that, here we
     # specify the And's type as a python list, otherwise we will have nothing into
     # which the extracted values of the two AnyOf lenses can be stored - which
@@ -164,7 +162,6 @@ def aggregating_lenses_test():
 
 
 def grouping_test():
-
     # Note that there are some syntax shortcuts (a la pyparsing) we can use when
     # defining lenses.
 
@@ -184,7 +181,6 @@ def grouping_test():
 
 
 def conditional_lenses_test():
-
     # But we also need to allow for alternative branching in realistic grammar
     # parsing (and unparsing), so here we can use the Or lens.
     # Here the syntax A | B | C  is shorthand for Or(A, B, C).
@@ -221,7 +217,6 @@ def conditional_lenses_test():
 
 
 def combining_characters_test():
-
     # Sometimes we wish to combine aggregated single character lenses into a
     # string, which can be done with the combine_chars argument of an appropriately
     # constructed lens of type list.
@@ -235,7 +230,6 @@ def combining_characters_test():
 
 
 def useful_lenses_test():
-
     # It is very easy to extend pylens with new lenses but I've created a few
     # already based on common parser patterns and on those useful parsing classes
     # you can find in pyparsing.

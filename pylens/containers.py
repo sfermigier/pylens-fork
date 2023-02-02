@@ -409,7 +409,6 @@ class LensObject(AbstractContainer):
     #
 
     def store_item(self, item, lens, concrete_input_reader):
-
         # First see if the item is to be stored in one of our containers.
         sub_container = self._get_item_sub_container(lens, item)
         if sub_container:

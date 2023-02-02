@@ -98,7 +98,6 @@ class Word(And):
         negate=False,
         **options
     ):
-
         assert_msg(min_count > 0, "min_count should be more than zero.")
 
         # For convenience, enable type if label or is_label is set on this lens.

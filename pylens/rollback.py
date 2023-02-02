@@ -108,7 +108,9 @@ def get_rollbackables_state(*rollbackables, copy_state=True, **kargs):
     return rollbackables_state
 
 
-def set_rollbackables_state(new_rollbackables_state, *rollbackables, copy_state=True, **kargs):
+def set_rollbackables_state(
+    new_rollbackables_state, *rollbackables, copy_state=True, **kargs
+):
     """Handy function to set the state of multiple rollbackables, conviently ignoring those with value None.
 
     Assume we copy state, unless directed otherwise.

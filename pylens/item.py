@@ -39,6 +39,7 @@ from pylens.util import Properties, has_value
 
 META_ATTRIBUTE = "_meta_data"
 
+
 #
 # Wrappers for simple types, so we can transparently add arbitrary properies.
 #
@@ -78,7 +79,6 @@ def enable_meta_data(item):
     assert has_value(item)
 
     if not item_has_meta(item):
-
         # Wrap simple types to allow attributes to be added to them.
         if isinstance(item, str):
             item = str_wrapper(item)

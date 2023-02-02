@@ -184,7 +184,6 @@ class Lens:
 
         # If we are a STORE lens (i.e. we extract an item) ...
         if self.has_type():
-
             # Cast the item to our type (usually if it is a string being cast to a
             # simple type, such as int).
             assert_msg(
@@ -346,7 +345,6 @@ class Lens:
 
         # Display some useful info for debug tracing.
         if IN_DEBUG_MODE:
-
             # It's very useful to see if an item holds a label in its meta.
             if hasattr(item, "_meta_data") and has_value(item._meta_data.label):
                 item_label_string = f" [label: {item._meta_data.label}]"
@@ -375,7 +373,6 @@ class Lens:
         # Now we can assume that our lens has a type (i.e. will directly PUT an
         # item)
         elif has_value(item):
-
             # For the sake of algorithmic consistancy, ensure the incoming item can
             # hold meta data.
             item = enable_meta_data(item)
@@ -406,7 +403,6 @@ class Lens:
 
             # If this item was previously GOTten, we can get its original input.
             if has_value(item._meta_data.concrete_input_reader):
-
                 # Create a personal concrete reader for this item, based on its meta
                 # data.
                 item_input_reader = ConcreteInputReader(
@@ -431,7 +427,6 @@ class Lens:
                     concrete_input_reader = item_input_reader
 
             else:
-
                 # Otherwise, if our item had no source meta, we will be CREATING, but
                 # must still consume from the outer reader, if there is one.
                 if has_value(concrete_input_reader):
@@ -715,7 +710,6 @@ class Lens:
             and issubclass(self.type, list)
             and not isinstance(item, list)
         ):
-
             # Create some variables to clarify the process.
             singleton = item
             list_meta_data = item._meta_data
@@ -822,7 +816,6 @@ class And(Lens):
     """A lens that is formed from the ANDing of two sub-lenses."""
 
     def __init__(self, *lenses, **options):
-
         # Must always remember to invoke the parent lens, so it can initialise
         # common arguments.
         super().__init__(**options)
@@ -1149,7 +1142,6 @@ class Repeat(Lens):
         #
 
         for input_reader in input_readers:
-
             # Allows the while loop to request breakout from outer for loop.
             break_for_loop = False
 
@@ -1198,7 +1190,6 @@ class Repeat(Lens):
 
         max_count = self.max_count or 0
         if concrete_input_reader and no_got < max_count:
-
             d("Now consuming and discarding excess input.")
 
             # Iterate over the input with our lens, consuming as much of it as
@@ -1262,7 +1253,6 @@ class Empty(Lens):
         self.mode = mode
 
     def _get(self, concrete_input_reader, current_container):
-
         # Check for special modes.
         if self.mode == self.START_OF_TEXT:
             if concrete_input_reader.get_pos() != 0:
@@ -1279,7 +1269,6 @@ class Empty(Lens):
         return None
 
     def _put(self, item, concrete_input_reader, current_container):
-
         if self.has_type():
             if not (has_value(item) and isinstance(item, str) and item == ""):
                 raise LensException("Expected to PUT an empty string")

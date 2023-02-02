@@ -76,7 +76,6 @@ def test_auto_list():
 
 
 def test_dict():
-
     # Test use of static labels.
     lens = Group(
         AnyOf(nums, type=int, label="number")
@@ -246,7 +245,6 @@ def test_source_ordered_matching_list():
 
 
 def test_state_recovery():
-
     describe_test("Test that the user's item's state is recovered after consumption.")
     INPUT = "x=y;p=q"
     lens = List(
@@ -345,7 +343,6 @@ auto eth1
 """
 
     class NetworkInterface(LensObject):
-
         __lens__ = (
             "iface"
             + WS(" ")
@@ -499,7 +496,6 @@ def test_init():
     #  args.
 
     class Person:
-
         age = 10
 
         def __new__(cls, *args, **kargs):

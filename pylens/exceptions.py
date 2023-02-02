@@ -52,7 +52,6 @@ class LensException(RollbackException):
             d(f"Throwing: {self.__msg} (from {self.get_thrown_from()})")
 
     def get_thrown_from(self):
-
         import inspect
 
         from nbdebug import getCallerLocation

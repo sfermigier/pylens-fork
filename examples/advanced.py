@@ -80,7 +80,6 @@ auto eth1
     # First we define a class to represent the iface stanza.  I break it up a
     # little to make it clearer.
     class NetworkInterface(LensObject):
-
         # Some component lenses.
         indent = WS("   ")
         interface_attribute = KeyValue(
