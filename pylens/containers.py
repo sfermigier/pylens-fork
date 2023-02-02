@@ -726,7 +726,7 @@ class ContainerFactory:
     @staticmethod
     def create_container(container_type):
         """
-        Tries to create an container appropriate for this lens and returns None
+        Tries to create a container appropriate for this lens and returns None
         if there is no associated container class.
         """
         # See if the lens type has a container class.

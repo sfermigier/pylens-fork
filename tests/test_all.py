@@ -26,14 +26,16 @@
 #
 #
 #
-# Author: Nick Blundell <blundeln [AT] gmail [DOT] com>
+# Original Author: Nick Blundell <blundeln [AT] gmail [DOT] com>
 # Organisation: www.nickblundell.org.uk
 #
-# Description:
-#  Longer tests, which must have suffix '_test' to be picked up for automated
-#  testing.  Some of these are based on tricky config file examples given in the Augeas system
-#  Note that these lenses may not be completely accurate but are an aid to testing.
-#
+
+"""
+Longer tests.
+Some of these are based on tricky config file examples given in the Augeas system
+Note that these lenses may not be completely accurate but are an aid to testing.
+"""
+
 from pytest import raises
 
 from pylens import get, put
@@ -83,8 +85,10 @@ def test_dict():
         type=dict,
         alignment=SOURCE,
     )
+
     d("GET")
     assert lens.get("1a") == {"number": 1, "character": "a"}
+
     d("PUT")
     assert lens.put({"number": 4, "character": "q"}, "1a") == "4q"
     with raises(NoTokenToConsumeException):
@@ -240,7 +244,6 @@ def test_source_ordered_matching_list():
     got.append(["m", 6])
 
     output = lens.put(got)
-    d(output)
     assert output == "a+3c-2m*6"
 
 
@@ -257,7 +260,7 @@ def test_state_recovery():
     my_dict["beans"] = "yummy"
     my_dict["marmite"] = "eurgh"
     lens.put(my_dict)
-    assert_equal(my_dict, {"beans": "yummy", "marmite": "eurgh"})
+    assert my_dict == {"beans": "yummy", "marmite": "eurgh"}
     # XXX: Actually, due to DictContainer implementation, this state would not be
     # lost anyway, though a similar test with LensObject below flexes this test
     # case.  I will leave this test, should the implemenation change in someway to
@@ -294,11 +297,12 @@ def test_lens_object():
     # Now we PUT it back with no modification and should get what we started with.
     describe_test("PUT")
     output = put(person)
-    assert_equal(output, "Person::Name:nick;Last   Name:blundell")
+    assert output == "Person::Name:nick;Last   Name:blundell"
+
     # And we do this again to check the consumed state of person was restored
     # after the successful PUT.
     output = put(person)
-    assert_equal(output, "Person::Name:nick;Last   Name:blundell")
+    assert output == "Person::Name:nick;Last   Name:blundell"
 
     describe_test("CREATE")
     new_person = Person("james", "bond")
@@ -374,22 +378,23 @@ auto eth1
             return attribute_name.replace("_", "-")
 
     GlobalSettings.check_consumption = False
-    if True:
-        describe_test("Test GET NetworkInterface")
-        interface = get(BlankLine() + NetworkInterface, INPUT)
-        # Do some spot checks of our extracted object.
-        assert_equal(interface._meta_data.singleton_meta_data.label, "eth0-home")
-        assert_equal(interface.address_family, "inet")
-        assert_equal(interface.method, "static")
-        assert_equal(interface.dns_nameservers, "67.207.128.4 67.207.128.5")
-        assert_equal(interface.up, "flush-mail")
 
-        describe_test("Test PUT NetworkInterface")
-        interface.cheese_type = "cheshire"
-        interface.address = "bananas"
-        output = put(interface)
+    describe_test("Test GET NetworkInterface")
+    interface = get(BlankLine() + NetworkInterface, INPUT)
+    # Do some spot checks of our extracted object.
+    assert_equal(interface._meta_data.singleton_meta_data.label, "eth0-home")
+    assert_equal(interface.address_family, "inet")
+    assert_equal(interface.method, "static")
+    assert_equal(interface.dns_nameservers, "67.207.128.4 67.207.128.5")
+    assert_equal(interface.up, "flush-mail")
 
-        expected = """iface eth0-home inet static
+    describe_test("Test PUT NetworkInterface")
+    interface.cheese_type = "cheshire"
+    interface.address = "bananas"
+    output = put(interface)
+
+    expected = """\
+iface eth0-home inet static
    netmask 255.255.255.0
    gateway  67.207.128.1
    dns-nameservers 67.207.128.4 67.207.128.5
@@ -398,22 +403,22 @@ auto eth1
    cheese-type cheshire
 """
 
-        assert output == expected
+    assert output == expected
 
-        # Try creating from scratch.
-        interface = NetworkInterface(
-            address_family="inet",
-            method="static",
-            dns_nameservers="1.2.3.4 1.2.3.5",
-            netmask="255.255.255.0",
-        )
-        output = put(interface, label="wlan3")
-        assert_equal(
-            output,
-            """iface wlan3 inet static
+    # Try creating from scratch.
+    interface = NetworkInterface(
+        address_family="inet",
+        method="static",
+        dns_nameservers="1.2.3.4 1.2.3.5",
+        netmask="255.255.255.0",
+    )
+    output = put(interface, label="wlan3")
+    expected = """\
+iface wlan3 inet static
    dns-nameservers 1.2.3.4 1.2.3.5
-   netmask 255.255.255.0\n""",
-        )
+   netmask 255.255.255.0
+"""
+    assert output == expected
 
     #
     # Now let's create a class to represent the whole configuration.

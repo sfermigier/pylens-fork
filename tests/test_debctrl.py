@@ -70,8 +70,8 @@ Build-Depends-Indep: perl (>= 5.8.8-12), libcarp-assert-more-perl,
 def test_debctrl():
     """An example based on an example from the Augeas user guide."""
 
-    # As a whole, this is a fairly complex lens, though as you work through it you
-    # should see that the steps are fairly consistant.
+    # As a whole, this is a fairly complex lens, though as you work through it, you
+    # should see that the steps are fairly consistent.
     # This lens demonstrates the use of labels and the auto_list lens modifier. I
     # also use incremental testing throughout, which should help you to follow
     # it.
@@ -117,9 +117,9 @@ def test_debctrl():
 
     # Just to highlight the effect of auto_list on a list type lens.
     if simple_entry.options.auto_list:
-        assert_equal(got, "Debian Perl Group <pkg-perl-maintainers@xx>")
+        assert got == "Debian Perl Group <pkg-perl-maintainers@xx>"
     else:
-        assert_equal(got, ["Debian Perl Group <pkg-perl-maintainers@xx>"])
+        assert got == ["Debian Perl Group <pkg-perl-maintainers@xx>"]
 
     # An insight into how pylens stores metadata on items to assist storage.
     assert_equal(got._meta_data.label, "Maintainer")
@@ -157,13 +157,12 @@ def test_debctrl():
     )
 
     got = package_options.get("perl-modules (>= 5.10) | libmodule-build-perl")
-    assert_equal(
-        got,
-        [
-            {"name": "perl-modules", "version": ">= 5.10"},
-            {"name": "libmodule-build-perl"},
-        ],
-    )
+    expected = [
+        {"name": "perl-modules", "version": ">= 5.10"},
+        {"name": "libmodule-build-perl"},
+    ]
+    assert got == expected
+
     # Then test auto_list ensures the list is unwrapped for a single item.
     assert_equal(
         package_options.get("perl-modules (>= 5.10)"),
@@ -196,17 +195,15 @@ def test_debctrl():
     got = depends_list.get(
         """debhelper (>= 7.0.0) | cheese,\n \t  perl-modules (>= 5.10) , libmodule-build-perl | monkey (1.2)"""
     )
-    assert_equal(
-        got,
-        [
-            [{"name": "debhelper", "version": ">= 7.0.0"}, {"name": "cheese"}],
-            {
-                "name": "perl-modules",
-                "version": ">= 5.10",
-            },  # Not in list due to auto_list.
-            [{"name": "libmodule-build-perl"}, {"name": "monkey", "version": "1.2"}],
-        ],
-    )
+    expected = [
+        [{"name": "debhelper", "version": ">= 7.0.0"}, {"name": "cheese"}],
+        {
+            "name": "perl-modules",
+            "version": ">= 5.10",
+        },  # Not in list due to auto_list.
+        [{"name": "libmodule-build-perl"}, {"name": "monkey", "version": "1.2"}],
+    ]
+    assert got == expected
 
     # Now lets try to PUT (actually CREATE a new) our abstract structure into a string.
     output = depends_list.put(
@@ -232,7 +229,7 @@ def test_debctrl():
     # And now we have our final lens.
     lens = Repeat(simple_entry | depends_entry, type=dict, alignment=SOURCE)
 
-    # This names all of the lenses based on their variable names, to improve clarity of debug logs.
+    # This names all the lenses based on their variable names, to improve clarity of debug logs.
     auto_name_lenses(locals())
 
     # Now lets get the config file snippet as an abstract form we can easily
@@ -249,7 +246,8 @@ def test_debctrl():
     output = lens.put(got)
 
     # Now lets check the output.
-    expected = """Source: libconfig-model-perl
+    expected = """\
+Source: libconfig-model-perl
 Section: perl
 Maintainer: Debian Perl Group <pkg-perl-maintainers@xx>
 Build-Depends-Indep: perl (>= 5.8.8-12), libcarp-assert-more-perl,
