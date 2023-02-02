@@ -19,7 +19,7 @@ def test_optional():
     GlobalSettings.check_consumption = False
     lens = Optional(AnyOf(alphas, type=str))
     assert lens.get("abc") == "a"
-    assert lens.get("123") == None
+    assert lens.get("123") is None
     assert lens.put("a") == "a"
     assert lens.put(1) == ""
 
@@ -48,8 +48,8 @@ def test_list():
 
 def test_newline():
     lens = NewLine()
-    assert lens.get("\n") == None
-    assert lens.get("") == None
+    assert lens.get("\n") is None
+    assert lens.get("") is None
     with raises(LensException):
         lens.get("abc")
     assert lens.put("\n") == "\n"
@@ -76,7 +76,7 @@ def test_word():
 
     d("Test with no type")
     lens = Word(alphanums, init_chars=alphas, max_count=5, default="a123d")
-    assert lens.get("w23dffdf3") == None
+    assert lens.get("w23dffdf3") is None
     concrete_input_reader = ConcreteInputReader("ab12_3456")
     assert lens.put(None, concrete_input_reader) == "ab12"
     assert concrete_input_reader.get_remaining() == "_3456"
@@ -90,21 +90,21 @@ def test_whitespace():
     lens = Whitespace(" ")
     concrete_input_reader = ConcreteInputReader("  \t  xyz")
     assert (
-        lens.get(concrete_input_reader) == None
+        lens.get(concrete_input_reader) is None
         and concrete_input_reader.get_remaining() == "xyz"
     )
     assert lens.put() == " "
 
     # Test that the Empty lens is valid when the default space is set to empty string (i.e. not space).
     lens = Whitespace("")
-    assert lens.get("xyz") == None
+    assert lens.get("xyz") is None
     assert lens.put() == ""
 
     # With slash continuation.
     lens = Whitespace(" ", slash_continuation=True)
     concrete_input_reader = ConcreteInputReader("  \t\\\n  xyz")
     assert (
-        lens.get(concrete_input_reader) == None
+        lens.get(concrete_input_reader) is None
         and concrete_input_reader.get_remaining() == "xyz"
     )
 
@@ -112,6 +112,6 @@ def test_whitespace():
     lens = Whitespace(" ", indent_continuation=True)
     concrete_input_reader = ConcreteInputReader("  \n xyz")
     assert (
-        lens.get(concrete_input_reader) == None
+        lens.get(concrete_input_reader) is None
         and concrete_input_reader.get_remaining() == "xyz"
     )

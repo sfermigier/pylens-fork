@@ -709,7 +709,7 @@ class ContainerFactory:
         """
         Returns the container class associated with this type, if there is one.
         """
-        if incoming_type == None:
+        if incoming_type is None:
             return None
 
         # If type is already an AbstractContainer, return it.
@@ -733,7 +733,7 @@ class ContainerFactory:
         # See if the lens type has a container class.
         container_class = ContainerFactory.get_container_class(container_type)
 
-        if container_class == None:
+        if container_class is None:
             return None
 
         # We do not call the constructor, which may require args.

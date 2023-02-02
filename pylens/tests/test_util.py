@@ -8,4 +8,4 @@ def test_properties():
     assert properties.food == "cheese"
     properties.something = [1, 2, 3]
     assert properties.something == [1, 2, 3]
-    assert properties.nothing == None
+    assert properties.nothing is None

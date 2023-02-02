@@ -192,7 +192,7 @@ def test_repeat():
     describe_test("Test non-typed lenses.")
     lens = Repeat(AnyOf(nums, default=8))
     input_reader = ConcreteInputReader("12345abc")
-    d(lens.get(input_reader) == None and input_reader.get_remaining() == "abc")
+    d(lens.get(input_reader) is None and input_reader.get_remaining() == "abc")
     input_reader.reset()
     # Lens should make use of outer input, since not supplied by an item.
     assert (
@@ -257,7 +257,7 @@ def test_empty():
 
     d("Test without type")
     lens = Empty()
-    assert lens.get("anything") == None
+    assert lens.get("anything") is None
     assert lens.put() == ""
     # Lens does not expect to put an item, valid or otherwise.
     with raises(LensException):
@@ -306,7 +306,7 @@ def test_litteral():
     lens = Literal("xyz")
     concrete_reader = ConcreteInputReader("xyzabc")
     assert (
-        lens.get(concrete_reader) == None and concrete_reader.get_remaining() == "abc"
+        lens.get(concrete_reader) is None and concrete_reader.get_remaining() == "abc"
     )
     d("PUT")
     assert lens.put(None) == "xyz"

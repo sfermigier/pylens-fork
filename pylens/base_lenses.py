@@ -30,7 +30,7 @@
 #
 
 """
-These lenses form the core of pylens.  The Lens class is the base of all other
+These lenses form the core of pylens. The Lens class is the base of all other
 lenses and encapsulates (and hides) much of the complexity of the framework
 whilst allowed us to extend it.
 """
@@ -111,7 +111,7 @@ class Lens:
         consumed and nothing returned to be used in our abstract structure.
 
         This effectively wraps the _get function (GET proper) of the specific
-        lens, handling all of the common tasks (e.g. input normalisation, creation
+        lens, handling all the common tasks (e.g. input normalisation, creation
         of stateful item containers, rolling back state for failed parsing
         branches, etc.).
 
@@ -170,7 +170,7 @@ class Lens:
             # Call GET proper with our container, checking that no item is returned,
             # since all items should be stored WITHIN the container
             assert_msg(
-                self._get(concrete_input_reader, lens_container) == None,
+                self._get(concrete_input_reader, lens_container) is None,
                 f"Container lens {self} has GOT an item, but all items must be stored in the current container, not returned.",
             )
 
@@ -269,12 +269,12 @@ class Lens:
             structures that internally contain a label.
 
         This effectively wraps the _put function (PUT proper) of the specific
-        lens, handling all of the common tasks (e.g. input normalisation, creation
+        lens, handling all the common tasks (e.g. input normalisation, creation
         of stateful containers, rolling back state for failed parsing branches).
 
         Note that we make no distinction between PUT and CREATE (from the
         literatur): since a previously extracted item will carry information of
-        its concrete structure within its meta data it will use this for weaving
+        its concrete structure within its metadata it will use this for weaving
         in non-stored artifacts; otherwise, default artifacts will be used (as in
         CREATE).
 
@@ -289,7 +289,7 @@ class Lens:
         #
         # Algorithm
         #
-        # Assert item => container == None
+        # Assert item => container is None
         # Note, though an item will hold its own input, the lens must consumed from
         # the outer input reader if one is supplied.
         #
@@ -330,7 +330,7 @@ class Lens:
         # been passed.
         if has_value(item):
             assert_msg(
-                current_container == None,
+                current_container is None,
                 "A lens should not be passed both a container and an item.",
             )
             # Note, however, that a typed item may well be passed an outer concrete
@@ -363,7 +363,7 @@ class Lens:
         # default output of a sub-lens.
         if not self.has_type():
             # Use default (for CREATE)
-            if concrete_input_reader == None and has_value(self.default):
+            if concrete_input_reader is None and has_value(self.default):
                 output = str(self.default)
 
             # Otherwise do a PUT proper, passing through our arguments, for example
@@ -535,7 +535,7 @@ class Lens:
 
     def has_type(self):
         """Determines if this lens will GET and PUT a variable - a STORE lens."""
-        return self.type != None
+        return self.type is not None
 
     def container_get(self, lens, concrete_input_reader, current_container):
         """
@@ -551,7 +551,7 @@ class Lens:
         else:
             # Call get on lens passing no container, checking it returns no item.
             assert_msg(
-                lens.get(concrete_input_reader, None) == None,
+                lens.get(concrete_input_reader, None) is None,
                 "The untyped container lens %s did not expect the sub-lens %s to return an item"
                 % (self, lens),
             )
@@ -851,7 +851,7 @@ class And(Lens):
         # In the same way that we do not return an item in GET, we do not expect
         # to PUT an individual item; again, this is handle in Lens.put
         assert_msg(
-            item == None,
+            item is None,
             "Lens %s did not expect to PUT an individual item %s, since it PUTs from a container"
             % (self, item),
         )

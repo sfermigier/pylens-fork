@@ -90,13 +90,11 @@ class Rollbackable:
 #
 # Utility functions for getting and setting the state of multiple rollbackables.
 #
-def get_rollbackables_state(*rollbackables, **kargs):
-    """Handy function to get the state of multiple rollbackables, conviently ignoring those with value None."""
-    # Assume we copy state, unless directed otherwise.
-    if "copy_state" in kargs and kargs["copy_state"] == False:
-        copy_state = False
-    else:
-        copy_state = True
+def get_rollbackables_state(*rollbackables, copy_state=True, **kargs):
+    """Handy function to get the state of multiple rollbackables, conviently ignoring those with value None.
+
+    Assume we copy state, unless directed otherwise.
+    """
 
     # Note: rollbackables must be in same order for get and set.
     rollbackables_state = []
@@ -110,13 +108,11 @@ def get_rollbackables_state(*rollbackables, **kargs):
     return rollbackables_state
 
 
-def set_rollbackables_state(new_rollbackables_state, *rollbackables, **kargs):
-    """Handy function to set the state of multiple rollbackables, conviently ignoring those with value None."""
-    # Assume we copy state, unless directed otherwise.
-    if "copy_state" in kargs and kargs["copy_state"] == False:
-        copy_state = False
-    else:
-        copy_state = True
+def set_rollbackables_state(new_rollbackables_state, *rollbackables, copy_state=True, **kargs):
+    """Handy function to set the state of multiple rollbackables, conviently ignoring those with value None.
+
+    Assume we copy state, unless directed otherwise.
+    """
 
     # if IN_DEBUG_MODE :
     #  d("Setting state to: %s" % new_rollbackables_state)
@@ -159,7 +155,7 @@ class automatic_rollback:
             self.start_state = get_rollbackables_state(*self.rollbackables)
 
     def __exit__(self, type, value, traceback):
-        # If a RollbackException is thrown, revert all of the rollbackables.
+        # If a RollbackException is thrown, revert all the rollbackables.
         if type and issubclass(type, RollbackException):
             set_rollbackables_state(self.start_state, *self.rollbackables)
             d(f"Rolled back rollbackables to: {str(self.rollbackables)}.")

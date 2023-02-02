@@ -120,7 +120,7 @@ def range_truncate(s, max_len=8):
 
 def has_value(var):
     """To avoid possible comparison bugs with empty values vs None."""
-    return var != None
+    return var is not None
 
 
 #
