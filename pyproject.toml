@@ -5,7 +5,9 @@ description = "Pylens - Object Serialisation through a Lens"
 # Not really the author, just the author of this fork.
 authors = ["Stefane Fermigier <sf@abilian.com>"]
 license = "BSD"
-packages = [{ include = "pylens" }]
+packages = [
+    { include = "pylens", from = "src" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
