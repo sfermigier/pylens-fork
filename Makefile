@@ -1,12 +1,12 @@
 all: test lint
 
 test:
-	pytest tests pylens
+	pytest tests src
 
 lint:
-	ruff check pylens
+	ruff check src
 
 format:
-	isort pylens tests
-	black pylens tests
+	isort src tests
+	black src tests
 
