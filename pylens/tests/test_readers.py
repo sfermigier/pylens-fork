@@ -1,3 +1,7 @@
+# Copyright (c) 2023-2024, Abilian SAS
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 from pylens.exceptions import LensException
 from pylens.readers import ConcreteInputReader
 from pylens.rollback import automatic_rollback

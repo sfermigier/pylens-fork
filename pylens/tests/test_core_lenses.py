@@ -1,3 +1,7 @@
+# Copyright (c) 2023-2024, Abilian SAS
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 from pytest import raises
 
 from pylens.base_lenses import AnyOf, Group

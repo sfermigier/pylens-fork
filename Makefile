@@ -4,7 +4,7 @@ test:
 	pytest tests pylens
 
 lint:
-	ruff pylens
+	ruff check pylens
 
 format:
 	isort pylens tests
