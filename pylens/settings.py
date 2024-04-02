@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+
 class GlobalSettings:
     """
     These are some global settings that affect the functionality of the

@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+from __future__ import annotations
+
 from .exceptions import EndOfStringException
 from .rollback import Rollbackable
 from .util import truncate
@@ -11,16 +13,17 @@ from .util import truncate
 class ConcreteInputReader(Rollbackable):
     """Stateful reader of the concrete input string."""
 
-    def __init__(self, input_string):
-        # If input_string is in fact a ConcreteInputReader, copy its state.
-        if isinstance(input_string, self.__class__):
-            self.position = input_string.position
-            self.string = input_string.string
-        # Otherwise, initialise our state.
-        else:
-            assert isinstance(input_string, str)
-            self.position = 0
-            self.string = input_string
+    position: int
+    string: str
+
+    def __init__(self, input: str | ConcreteInputReader):
+        match input:
+            case ConcreteInputReader():
+                self.position = input.position
+                self.string = input.string
+            case str():
+                self.position = 0
+                self.string = input
 
     def reset(self):
         self.set_pos(0)

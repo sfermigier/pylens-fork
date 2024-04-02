@@ -215,7 +215,8 @@ class Lens:
             and not concrete_input_reader.is_fully_consumed()
         ):
             raise NotFullyConsumedException(
-                f"The following input remains to be consumed by this lens: '{concrete_input_reader.get_remaining()}'"
+                f"The following input remains to be consumed by this lens: "
+                f"'{concrete_input_reader.get_remaining()}'"
             )
 
         # Pre-process outgoing item.
